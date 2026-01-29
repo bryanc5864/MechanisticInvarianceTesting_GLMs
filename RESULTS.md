@@ -157,6 +157,124 @@ The positional ablation shows HyenaDNA has weak but detectable positional awaren
 
 > Current gLMs can capture **statistical associations** between sequence features and regulatory function, but fail to reliably encode the **positional logic** that underlies mechanistic compensation in bacterial transcription.
 
+---
+
+## Extended Experiments
+
+### Experiment 2.1: AT Titration
+
+**Question**: Does LL correlate with background AT content, independent of motifs?
+
+| AT% | Intact LL | Broken LL | Compensated LL |
+|-----|-----------|-----------|----------------|
+| 30% | -143.6 | -144.2 | -143.5 |
+| 40% | -146.5 | -145.6 | -143.3 |
+| 50% | -145.0 | -143.5 | -141.2 |
+| 60% | -139.6 | -138.9 | -136.5 |
+| 70% | -132.5 | -133.0 | -131.7 |
+| 80% | -123.2 | -124.2 | -125.0 |
+
+**Correlations (LL vs AT%)**:
+- Intact: r = 0.785
+- Broken: r = 0.789
+- Compensated: r = 0.812
+
+**Key Finding**: LL increases ~20 units from AT=30% to AT=80%. The AT effect dominates; motif differences are small and inconsistent.
+
+---
+
+### Experiment 3.1: Positional Sweep
+
+**Question**: Does HyenaDNA care where the UP element is located?
+
+| UP Position | Mean LL | vs Correct (15) |
+|-------------|---------|-----------------|
+| 0 | -139.90 | -0.40 |
+| 5 | -139.70 | -0.20 |
+| 10 | -140.40 | -0.90 |
+| **15** | **-139.50** | **0.00** |
+| 20 | -140.72 | -1.22 |
+| 25 | -139.88 | -0.39 |
+| 35 | -141.40 | -1.91 |
+| 45 | -139.91 | -0.41 |
+| 60 | -139.65 | -0.15 |
+| 70 | -139.53 | -0.04 |
+| 80 | -140.03 | -0.54 |
+| None | -142.19 | -2.70 |
+
+**Key Findings**:
+1. **UP effect (15 vs None): +2.70** - Having AT-rich content helps
+2. **Position effect (15 vs 70): +0.04** - Position doesn't matter (p=0.96)
+3. Position 35 is worst because it overlaps the -35 box
+
+---
+
+### Experiment 3.2: Spacing Sensitivity
+
+**Question**: Does HyenaDNA know the optimal 17bp spacing between -35 and -10?
+
+| Spacing | Mean LL | vs Optimal (17bp) |
+|---------|---------|-------------------|
+| 12bp | -142.41 | -0.31 |
+| 15bp | -141.93 | +0.17 |
+| **17bp** | **-142.10** | **0.00** |
+| 18bp | -143.14 | -1.04 |
+| 20bp | -141.51 | +0.59 |
+| 22bp | -141.53 | +0.57 |
+| 25bp | -141.98 | +0.12 |
+
+**Key Findings**:
+1. **Peak at 20bp, not 17bp** - Wrong optimal spacing
+2. **17bp is not special** - Lower than 15bp, 20bp, 22bp
+3. **Range only 1.6 LL units** - Essentially flat
+4. Quadratic fit predicts peak at 8.5bp - Completely wrong
+
+---
+
+### Experiment 3.3: Strand Orientation
+
+**Question**: Does HyenaDNA know promoter elements are strand-specific?
+
+| Condition | Mean LL | Description |
+|-----------|---------|-------------|
+| Forward | -142.20 | Correct orientation |
+| RC-in-place | -142.54 | RC motifs, same position |
+| Full RC | -142.75 | Full reverse complement |
+| Scrambled | -142.52 | Scrambled motifs |
+
+**Key Findings**:
+1. **All conditions within 0.55 LL** - No strand preference
+2. **Forward vs RC-in-place: +0.34** (p=0.70) - Not significant
+3. **Forward vs Scrambled: +0.32** (p=0.74) - Motifs don't matter
+
+**HyenaDNA is completely strand-blind.**
+
+---
+
+## Summary of All Experiments
+
+| Experiment | Finding | Implication |
+|------------|---------|-------------|
+| AT Titration | r=0.79 correlation with AT% | Compositional, not motif-based |
+| Positional Sweep | No position preference (p=0.96) | No positional encoding |
+| Spacing | Peak at 20bp, not 17bp | No understanding of optimal spacing |
+| Strand | No strand preference (p=0.70) | Strand-blind |
+| Scramble Control | SCR=0.48 | Can't distinguish structure from composition |
+
+### Final Conclusion
+
+HyenaDNA has learned a simple heuristic: **"AT-rich sequences are more likely."**
+
+This heuristic happens to correlate with promoter function (UP elements are AT-rich), producing apparent "compensation sensitivity" (CSS=0.630). However, the model fails every mechanistic test:
+
+1. ❌ Position doesn't matter
+2. ❌ Spacing doesn't matter
+3. ❌ Strand doesn't matter
+4. ❌ Motif sequence doesn't matter
+5. ✓ AT content matters (r=0.79)
+
+This represents **shallow statistical learning**, not **mechanistic understanding**.
+
 ## Reproducibility
 
 To reproduce these results:
