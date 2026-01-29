@@ -31,6 +31,22 @@ A model that only memorizes surface-level motifs will not understand this equiva
 | G | Natural Compensated | Real promoters with compensation | 50 |
 | H | Scrambled Control | Same composition as E, scrambled motifs | 50 |
 
+## Key Results
+
+See **[RESULTS.md](RESULTS.md)** for comprehensive benchmark results and analysis.
+
+### Summary
+
+| Model | CSS | Significant? |
+|-------|-----|--------------|
+| HyenaDNA | **0.630** | **Yes** (p=0.004) |
+| NT-500M | 0.540 | No |
+| Random | 0.500 | No (baseline) |
+| GROVER | 0.460 | No |
+| k-mer | 0.430 | No |
+
+**Key Finding**: HyenaDNA shows statistically significant compensation sensitivity, but extended experiments reveal this is driven by AT content correlation (r=0.73), not mechanistic understanding. The model fails positional, spacing, and strand orientation tests.
+
 ## Primary Metric: CSS
 
 **Compensation Sensitivity Score (CSS)** measures how often a model scores compensated sequences higher than broken sequences:
@@ -47,13 +63,17 @@ CSS = P(LL(compensated) > LL(broken))
 
 ```bash
 # Clone repository
+git clone https://github.com/bryanc5864/MITproject.git
 cd MITproject
 
 # Create virtual environment
 python -m venv venv
 source venv/bin/activate
 
-# Install dependencies
+# Install package (recommended)
+pip install -e .
+
+# Or install dependencies directly
 pip install -r requirements.txt
 
 # Optional: Install evo2 for Evo2 model
