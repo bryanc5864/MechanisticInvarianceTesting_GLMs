@@ -88,11 +88,74 @@ This benchmark evaluates whether genomic language models understand regulatory c
 ### CSS vs MES
 ![CSS vs MES](figures/css_vs_mes.png)
 
+## Deep Analysis: What Is HyenaDNA Actually Learning?
+
+### The Composition Effect
+
+Analysis reveals that HyenaDNA's CSS signal is primarily driven by **nucleotide composition**, not positional motif logic:
+
+| Metric | Value |
+|--------|-------|
+| Correlation(LL, whole-seq AT content) | **0.727** |
+| Correlation(LL, UP-region AT content) | 0.282 |
+| Mean UP-region AT (Class D - Broken) | 57.8% |
+| Mean UP-region AT (Class E - Compensated) | 82.1% |
+
+The strong correlation (r=0.727) between log-likelihood and AT content explains why HyenaDNA prefers compensated sequences: they contain AT-rich UP elements.
+
+### Positional Ablation Test
+
+To distinguish compositional from positional effects, we created sequences with UP elements in the **wrong position** (after -10 instead of before -35):
+
+| Condition | Mean LL | vs Original |
+|-----------|---------|-------------|
+| Original (UP at pos 15-23) | -139.65 | — |
+| Mispositioned (UP at pos 70-78) | -140.24 | -0.59 |
+| No UP (randomized) | -142.08 | -2.43 |
+
+**Key finding**: Moving the UP element to the wrong position reduces LL by only 0.59, while removing it entirely reduces LL by 2.43. The compositional effect (2.43) is **4x larger** than the positional effect (0.59).
+
+```
+P(Original > Mispositioned) = 0.580
+```
+
+HyenaDNA shows weak positional awareness (58% > 50%), but the dominant signal is AT composition.
+
+### The Scramble Control Problem
+
+The SCR ≈ 0.48 indicates HyenaDNA responds **identically** to:
+- Structured compensation: `AAAAAAGCA` (real UP) + `TGT` (extended -10)
+- Scrambled compensation: `TAGAAAAAA` (shuffled) + `TGT` (same)
+
+Mean LL difference (E vs H): only +0.07
+
+### Why Intact < Broken?
+
+Counter-intuitively, all models score synthetic **intact** sequences (TATAAT) **lower** than broken (TGTAAT):
+
+| Model | LL(Intact) - LL(Broken) |
+|-------|-------------------------|
+| HyenaDNA | -1.55 |
+| NT-500M | -0.90 |
+| GROVER | -0.43 |
+
+This suggests the models may have learned spurious correlations from their training data, where the broken motif pattern happens to be more common.
+
 ## Interpretation
 
-HyenaDNA appears to have learned something about regulatory compensation in E. coli σ70 promoters. It scores sequences with compensatory elements (UP element + extended -10) higher than those with just a broken -10 box, even though both have the same damaged core promoter element.
+HyenaDNA exhibits statistically significant compensation sensitivity (CSS=0.630, p<0.01), but this appears to be driven by a learned heuristic: **"AT-rich upstream sequences correlate with functional promoters."**
 
-This suggests that HyenaDNA may have captured some mechanistic understanding of how bacterial promoters function, rather than simply memorizing sequence patterns. However, the low SCR scores indicate that even HyenaDNA may be responding more to nucleotide composition than to specific motif structure.
+This is technically correct—UP elements are AT-rich and do enhance transcription. However, the model fails to encode the **positional logic** that makes this work biologically:
+
+1. UP elements must be at specific positions relative to -35
+2. The extended -10 (TGT) must be immediately upstream of -10
+3. Scrambling these elements should destroy function
+
+The positional ablation shows HyenaDNA has weak but detectable positional awareness (58% accuracy), suggesting it has captured some spatial information. However, the 4:1 ratio of compositional to positional effects indicates this is a secondary signal.
+
+### Conclusion
+
+> Current gLMs can capture **statistical associations** between sequence features and regulatory function, but fail to reliably encode the **positional logic** that underlies mechanistic compensation in bacterial transcription.
 
 ## Reproducibility
 
