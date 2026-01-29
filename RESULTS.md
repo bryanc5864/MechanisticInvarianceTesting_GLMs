@@ -275,6 +275,47 @@ This heuristic happens to correlate with promoter function (UP elements are AT-r
 
 This represents **shallow statistical learning**, not **mechanistic understanding**.
 
+---
+
+## Biophysical Model Comparison
+
+To demonstrate that the mechanistic tests are solvable, we implemented three biophysical models with explicit positional encoding:
+
+### Models
+
+1. **PA-PWM (Position-Aware PWM)**: Scores -35/-10 boxes at expected positions with spacing and compensation bonuses
+2. **Thermo (Thermodynamic)**: Free energy-based binding model with positional constraints
+3. **Scan (Position-Scanning)**: Finds best motifs, then penalizes deviation from expected positions
+
+### Results
+
+| Model | CSS | SCR | Pos Acc | Peak Spacing | Strand Acc |
+|-------|-----|-----|---------|--------------|------------|
+| **PA-PWM** | **0.850** | **0.700** | **0.890** | **17bp** | **1.000** |
+| **Thermo** | **0.670** | **0.550** | 0.510 | **17bp** | **1.000** |
+| Scan | 0.440 | 0.450 | 0.270 | **17bp** | 0.980 |
+| HyenaDNA | 0.630 | 0.480 | 0.580 | 20bp | 0.530 |
+| NT-500M | 0.540 | 0.400 | N/A | N/A | N/A |
+| GROVER | 0.460 | 0.480 | N/A | N/A | N/A |
+
+### Key Findings
+
+1. **PA-PWM achieves CSS=0.85** vs HyenaDNA's 0.63 - explicit positional encoding works
+2. **Biophysical models peak at 17bp spacing** (biologically correct) vs HyenaDNA's 20bp
+3. **Biophysical models are strand-specific** (100%) vs HyenaDNA's 53% (random)
+4. **PA-PWM has SCR=0.70** - can distinguish structured from scrambled motifs
+
+### Interpretation
+
+This comparison proves that:
+1. The mechanistic tests ARE solvable with the right inductive biases
+2. gLMs have NOT learned these mechanistic principles
+3. Explicit positional encoding captures regulatory logic that gLMs miss
+
+The PA-PWM model encodes roughly ~100 parameters of biological knowledge (PWM weights, positions, spacing rules). A 7B-parameter gLM trained on bacterial genomes should be able to learn equivalent rules, but does not.
+
+---
+
 ## Reproducibility
 
 To reproduce these results:
@@ -294,4 +335,7 @@ python scripts/compute_metrics.py --results data/results/
 
 # Generate analysis
 python scripts/analyze_results.py --metrics data/results/metrics.json --output figures/
+
+# Run biophysical comparison
+python scripts/run_biophysical_comparison.py
 ```
