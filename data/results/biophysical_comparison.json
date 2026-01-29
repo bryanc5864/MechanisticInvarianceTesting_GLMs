@@ -1,59 +1,23 @@
 {
   "PA-PWM": {
-    "css": 0.85,
-    "scr": 0.7,
-    "pos_acc": 0.89,
-    "spacing_peak": 17,
-    "strand_acc": 1.0,
-    "spacing_means": {
-      "12": 4.095,
-      "15": 5.219999999999999,
-      "17": 9.851,
-      "18": 7.628000000000001,
-      "20": 7.5520000000000005,
-      "22": 9.433,
-      "25": 6.17
-    },
-    "broken_mean": 9.894000000000002,
-    "compensated_mean": 13.313000000000004,
-    "scrambled_mean": 11.929000000000004
+    "css": 0.87,
+    "scr": 0.65,
+    "broken_mean": 9.965500000000002,
+    "compensated_mean": 13.157,
+    "scrambled_mean": 11.893000000000004
   },
   "Thermo": {
-    "css": 0.67,
-    "scr": 0.55,
-    "pos_acc": 0.51,
-    "spacing_peak": 17,
-    "strand_acc": 1.0,
-    "spacing_means": {
-      "12": 11.14,
-      "15": 12.77,
-      "17": 18.05,
-      "18": 15.51,
-      "20": 15.43,
-      "22": 16.57,
-      "25": 13.12
-    },
-    "broken_mean": 18.22,
-    "compensated_mean": 19.485,
-    "scrambled_mean": 18.885
+    "css": 0.63,
+    "scr": 0.56,
+    "broken_mean": 18.48,
+    "compensated_mean": 19.315,
+    "scrambled_mean": 18.7
   },
   "Scan": {
-    "css": 0.44,
-    "scr": 0.45,
-    "pos_acc": 0.27,
-    "spacing_peak": 17,
-    "strand_acc": 0.98,
-    "spacing_means": {
-      "12": 14.5482,
-      "15": 16.649199999999997,
-      "17": 18.1406,
-      "18": 17.292800000000003,
-      "20": 17.1866,
-      "22": 15.794800000000002,
-      "25": 14.056400000000002
-    },
-    "broken_mean": 5.164,
-    "compensated_mean": 2.4226999999999994,
-    "scrambled_mean": 3.6347000000000005
+    "css": 0.33,
+    "scr": 0.31,
+    "broken_mean": 6.8794,
+    "compensated_mean": -1.4972,
+    "scrambled_mean": 6.057700000000002
   }
 }

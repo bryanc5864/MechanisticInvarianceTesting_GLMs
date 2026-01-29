@@ -1,0 +1,207 @@
+2026-01-29 02:31:23,754 | INFO | ================================================================================
+2026-01-29 02:31:23,755 | INFO | SYSTEM INFORMATION
+2026-01-29 02:31:23,755 | INFO | ================================================================================
+2026-01-29 02:31:23,755 | INFO | Python version: 3.10.19
+2026-01-29 02:31:23,757 | INFO | Platform: Linux-5.15.0-107-generic-x86_64-with-glibc2.31
+2026-01-29 02:31:23,757 | INFO | CUDA available: True
+2026-01-29 02:31:23,757 | INFO | GPU: NVIDIA GeForce RTX 2080 Ti
+2026-01-29 02:31:23,758 | INFO | GPU Memory: 11.6 GB
+2026-01-29 02:31:23,758 | INFO | Timestamp: 20260129_023120
+2026-01-29 02:31:23,758 | INFO | Log directory: /home/bcheng/MITproject/logs/20260129_023120
+2026-01-29 02:31:23,758 | INFO | ================================================================================
+2026-01-29 02:31:23,758 | INFO | 
+################################################################################
+2026-01-29 02:31:23,758 | INFO | # STARTING MIT BENCHMARK EXPERIMENTS
+2026-01-29 02:31:23,758 | INFO | ################################################################################
+2026-01-29 02:31:23,758 | INFO | 
+================================================================================
+2026-01-29 02:31:23,758 | INFO | RUNNING BASELINE MODELS
+2026-01-29 02:31:23,758 | INFO | ================================================================================
+2026-01-29 02:31:23,847 | INFO | Loaded 650 sequences from /home/bcheng/MITproject/data/sequences/all_sequences.json
+2026-01-29 02:31:23,848 | INFO | 
+--- k-mer Baseline ---
+2026-01-29 02:31:23,848 | INFO | Computing k-mer scores...
+2026-01-29 02:31:24,116 | INFO | k-mer: Computed 650 scores
+2026-01-29 02:31:24,117 | INFO | k-mer: Mean score = -792.0146
+2026-01-29 02:31:24,117 | INFO | 
+--- PWM Baseline ---
+2026-01-29 02:31:24,117 | INFO | Computing PWM scores...
+2026-01-29 02:31:24,122 | INFO | PWM: Computed 650 scores
+2026-01-29 02:31:24,122 | INFO | PWM: Mean score = 15.0894
+2026-01-29 02:31:24,122 | INFO | 
+--- Random Baseline ---
+2026-01-29 02:31:24,123 | INFO | Computing random scores...
+2026-01-29 02:31:24,124 | INFO | Random: Computed 650 scores
+2026-01-29 02:31:24,125 | INFO | Random: Mean score = -0.0100
+2026-01-29 02:31:24,128 | INFO | Saved kmer results to /home/bcheng/MITproject/data/results/kmer_results.json
+2026-01-29 02:31:24,130 | INFO | Saved pwm results to /home/bcheng/MITproject/data/results/pwm_results.json
+2026-01-29 02:31:24,133 | INFO | Saved random results to /home/bcheng/MITproject/data/results/random_results.json
+2026-01-29 02:31:24,134 | INFO | 
+================================================================================
+2026-01-29 02:31:24,134 | INFO | RUNNING gLM MODELS
+2026-01-29 02:31:24,134 | INFO | ================================================================================
+2026-01-29 02:31:24,134 | INFO | Using GPU 1
+2026-01-29 02:31:24,585 | INFO | Loaded 650 sequences
+2026-01-29 02:31:24,586 | INFO | 
+--- HyenaDNA ---
+2026-01-29 02:31:24,586 | INFO | Loading HyenaDNA model...
+2026-01-29 02:31:32,690 | INFO | HyenaDNA loaded successfully
+2026-01-29 02:31:32,691 | INFO | Computing HyenaDNA scores...
+2026-01-29 02:31:35,394 | INFO |   Processed 100/650 sequences
+2026-01-29 02:31:37,108 | INFO |   Processed 200/650 sequences
+2026-01-29 02:31:38,813 | INFO |   Processed 300/650 sequences
+2026-01-29 02:31:40,505 | INFO |   Processed 400/650 sequences
+2026-01-29 02:31:42,223 | INFO |   Processed 500/650 sequences
+2026-01-29 02:31:43,993 | INFO |   Processed 600/650 sequences
+2026-01-29 02:31:44,886 | INFO | HyenaDNA: Computed 650 scores
+2026-01-29 02:31:44,887 | INFO | HyenaDNA: Mean score = -141.2637
+2026-01-29 02:31:44,896 | INFO | 
+--- Nucleotide Transformer 500M ---
+2026-01-29 02:31:44,896 | INFO | Loading NT-500M model...
+2026-01-29 02:31:45,182 | ERROR | NT-500M failed: Unrecognized configuration class <class 'transformers_modules.InstaDeepAI.nucleotide-transformer-v2-500m-multi-species.06615c1660c892fc199840c18123f8385b3542a8.esm_config.EsmConfig'> for this kind of AutoModel: AutoModel.
+Model type should be one of AlbertConfig, AlignConfig, AltCLIPConfig, ASTConfig, AutoformerConfig, BarkConfig, BartConfig, BeitConfig, BertConfig, BertGenerationConfig, BigBirdConfig, BigBirdPegasusConfig, BioGptConfig, BitConfig, BlenderbotConfig, BlenderbotSmallConfig, BlipConfig, Blip2Config, BloomConfig, BridgeTowerConfig, BrosConfig, CamembertConfig, CanineConfig, ChineseCLIPConfig, ChineseCLIPVisionConfig, ClapConfig, CLIPConfig, CLIPVisionConfig, CLIPSegConfig, ClvpConfig, LlamaConfig, CodeGenConfig, CohereConfig, ConditionalDetrConfig, ConvBertConfig, ConvNextConfig, ConvNextV2Config, CpmAntConfig, CTRLConfig, CvtConfig, Data2VecAudioConfig, Data2VecTextConfig, Data2VecVisionConfig, DebertaConfig, DebertaV2Config, DecisionTransformerConfig, DeformableDetrConfig, DeiTConfig, DetaConfig, DetrConfig, DinatConfig, Dinov2Config, DistilBertConfig, DonutSwinConfig, DPRConfig, DPTConfig, EfficientFormerConfig, EfficientNetConfig, ElectraConfig, EncodecConfig, ErnieConfig, ErnieMConfig, EsmConfig, FalconConfig, FastSpeech2ConformerConfig, FlaubertConfig, FlavaConfig, FNetConfig, FocalNetConfig, FSMTConfig, FunnelConfig, GemmaConfig, GitConfig, GLPNConfig, GPT2Config, GPT2Config, GPTBigCodeConfig, GPTNeoConfig, GPTNeoXConfig, GPTNeoXJapaneseConfig, GPTJConfig, GPTSanJapaneseConfig, GraphormerConfig, GroupViTConfig, HubertConfig, IBertConfig, IdeficsConfig, ImageGPTConfig, InformerConfig, JukeboxConfig, Kosmos2Config, LayoutLMConfig, LayoutLMv2Config, LayoutLMv3Config, LEDConfig, LevitConfig, LiltConfig, LlamaConfig, LongformerConfig, LongT5Config, LukeConfig, LxmertConfig, M2M100Config, MambaConfig, MarianConfig, MarkupLMConfig, Mask2FormerConfig, MaskFormerConfig, MaskFormerSwinConfig, MBartConfig, MCTCTConfig, MegaConfig, MegatronBertConfig, MgpstrConfig, MistralConfig, MixtralConfig, MobileBertConfig, MobileNetV1Config, MobileNetV2Config, MobileViTConfig, MobileViTV2Config, MPNetConfig, MptConfig, MraConfig, MT5Config, MvpConfig, NatConfig, NezhaConfig, NllbMoeConfig, NystromformerConfig, OneFormerConfig, OpenLlamaConfig, OpenAIGPTConfig, OPTConfig, Owlv2Config, OwlViTConfig, PatchTSMixerConfig, PatchTSTConfig, PegasusConfig, PegasusXConfig, PerceiverConfig, PersimmonConfig, PhiConfig, PLBartConfig, PoolFormerConfig, ProphetNetConfig, PvtConfig, PvtV2Config, QDQBertConfig, Qwen2Config, ReformerConfig, RegNetConfig, RemBertConfig, ResNetConfig, RetriBertConfig, RobertaConfig, RobertaPreLayerNormConfig, RoCBertConfig, RoFormerConfig, RwkvConfig, SamConfig, SeamlessM4TConfig, SeamlessM4Tv2Config, SegformerConfig, SegGptConfig, SEWConfig, SEWDConfig, SiglipConfig, SiglipVisionConfig, Speech2TextConfig, SpeechT5Config, SplinterConfig, SqueezeBertConfig, StableLmConfig, Starcoder2Config, SwiftFormerConfig, SwinConfig, Swin2SRConfig, Swinv2Config, SwitchTransformersConfig, T5Config, TableTransformerConfig, TapasConfig, TimeSeriesTransformerConfig, TimesformerConfig, TimmBackboneConfig, TrajectoryTransformerConfig, TransfoXLConfig, TvltConfig, TvpConfig, UdopConfig, UMT5Config, UniSpeechConfig, UniSpeechSatConfig, UnivNetConfig, VanConfig, VideoMAEConfig, ViltConfig, VisionTextDualEncoderConfig, VisualBertConfig, ViTConfig, ViTHybridConfig, ViTMAEConfig, ViTMSNConfig, VitDetConfig, VitsConfig, VivitConfig, Wav2Vec2Config, Wav2Vec2BertConfig, Wav2Vec2ConformerConfig, WavLMConfig, WhisperConfig, XCLIPConfig, XGLMConfig, XLMConfig, XLMProphetNetConfig, XLMRobertaConfig, XLMRobertaXLConfig, XLNetConfig, XmodConfig, YolosConfig, YosoConfig.
+2026-01-29 02:31:45,182 | INFO | 
+--- GROVER ---
+2026-01-29 02:31:45,182 | INFO | Loading GROVER model...
+2026-01-29 02:31:48,402 | INFO | GROVER loaded successfully
+2026-01-29 02:31:48,402 | INFO | Computing GROVER scores...
+2026-01-29 02:31:50,951 | INFO |   Processed 100/650 sequences
+2026-01-29 02:31:53,044 | INFO |   Processed 200/650 sequences
+2026-01-29 02:31:55,111 | INFO |   Processed 300/650 sequences
+2026-01-29 02:31:57,179 | INFO |   Processed 400/650 sequences
+2026-01-29 02:31:59,266 | INFO |   Processed 500/650 sequences
+2026-01-29 02:32:01,331 | INFO |   Processed 600/650 sequences
+2026-01-29 02:32:02,365 | INFO | GROVER: Computed 650 scores
+2026-01-29 02:32:02,366 | INFO | GROVER: Mean score = -0.0010
+2026-01-29 02:32:02,390 | INFO | Saved hyenadna results to /home/bcheng/MITproject/data/results/hyenadna_results.json
+2026-01-29 02:32:02,392 | INFO | Saved grover results to /home/bcheng/MITproject/data/results/grover_results.json
+2026-01-29 02:32:02,394 | INFO | 
+================================================================================
+2026-01-29 02:32:02,394 | INFO | RUNNING EXTENDED EXPERIMENTS
+2026-01-29 02:32:02,394 | INFO | ================================================================================
+2026-01-29 02:32:02,394 | INFO | Loading HyenaDNA for extended experiments...
+2026-01-29 02:32:07,208 | INFO | HyenaDNA loaded
+2026-01-29 02:32:07,209 | INFO | 
+--- Experiment 1: AT Titration ---
+2026-01-29 02:32:07,209 | INFO |   AT fraction = 30%
+2026-01-29 02:32:08,888 | INFO |     Intact: -144.27, Broken: -142.09, Comp: -142.55
+2026-01-29 02:32:08,889 | INFO |   AT fraction = 40%
+2026-01-29 02:32:10,562 | INFO |     Intact: -147.00, Broken: -145.56, Comp: -143.52
+2026-01-29 02:32:10,563 | INFO |   AT fraction = 50%
+2026-01-29 02:32:12,241 | INFO |     Intact: -145.64, Broken: -144.56, Comp: -140.80
+2026-01-29 02:32:12,241 | INFO |   AT fraction = 60%
+2026-01-29 02:32:13,925 | INFO |     Intact: -140.11, Broken: -139.99, Comp: -136.33
+2026-01-29 02:32:13,925 | INFO |   AT fraction = 70%
+2026-01-29 02:32:15,616 | INFO |     Intact: -131.44, Broken: -131.68, Comp: -130.21
+2026-01-29 02:32:15,617 | INFO |   AT fraction = 80%
+2026-01-29 02:32:17,308 | INFO |     Intact: -122.95, Broken: -124.21, Comp: -123.57
+2026-01-29 02:32:17,310 | INFO |   AT-LL Correlation: r = 0.784
+2026-01-29 02:32:17,310 | INFO | 
+--- Experiment 2: Positional Sweep ---
+2026-01-29 02:32:17,311 | INFO |   UP position = 0
+2026-01-29 02:32:18,235 | INFO |     Mean LL: -139.34
+2026-01-29 02:32:18,236 | INFO |   UP position = 5
+2026-01-29 02:32:19,155 | INFO |     Mean LL: -139.62
+2026-01-29 02:32:19,155 | INFO |   UP position = 10
+2026-01-29 02:32:20,075 | INFO |     Mean LL: -139.86
+2026-01-29 02:32:20,075 | INFO |   UP position = 15
+2026-01-29 02:32:21,000 | INFO |     Mean LL: -139.83
+2026-01-29 02:32:21,001 | INFO |   UP position = 20
+2026-01-29 02:32:21,920 | INFO |     Mean LL: -139.92
+2026-01-29 02:32:21,921 | INFO |   UP position = 25
+2026-01-29 02:32:22,839 | INFO |     Mean LL: -142.37
+2026-01-29 02:32:22,840 | INFO |   UP position = 35
+2026-01-29 02:32:23,763 | INFO |     Mean LL: -139.94
+2026-01-29 02:32:23,764 | INFO |   UP position = 45
+2026-01-29 02:32:24,678 | INFO |     Mean LL: -142.00
+2026-01-29 02:32:24,678 | INFO |   UP position = 60
+2026-01-29 02:32:25,596 | INFO |     Mean LL: -140.32
+2026-01-29 02:32:25,596 | INFO |   UP position = 70
+2026-01-29 02:32:26,519 | INFO |     Mean LL: -140.29
+2026-01-29 02:32:26,520 | INFO |   UP position = 80
+2026-01-29 02:32:27,432 | INFO |     Mean LL: -139.76
+2026-01-29 02:32:27,432 | INFO |   No UP element
+2026-01-29 02:32:28,344 | INFO |     Mean LL: -143.53
+2026-01-29 02:32:28,345 | INFO | 
+--- Experiment 3: Spacing Sensitivity ---
+2026-01-29 02:32:28,345 | INFO |   Spacing = 12bp
+2026-01-29 02:32:29,259 | INFO |     Mean LL: -143.47
+2026-01-29 02:32:29,259 | INFO |   Spacing = 13bp
+2026-01-29 02:32:30,171 | INFO |     Mean LL: -142.71
+2026-01-29 02:32:30,172 | INFO |   Spacing = 14bp
+2026-01-29 02:32:31,086 | INFO |     Mean LL: -141.79
+2026-01-29 02:32:31,086 | INFO |   Spacing = 15bp
+2026-01-29 02:32:32,001 | INFO |     Mean LL: -142.87
+2026-01-29 02:32:32,001 | INFO |   Spacing = 16bp
+2026-01-29 02:32:32,919 | INFO |     Mean LL: -142.66
+2026-01-29 02:32:32,920 | INFO |   Spacing = 17bp
+2026-01-29 02:32:33,832 | INFO |     Mean LL: -142.27
+2026-01-29 02:32:33,833 | INFO |   Spacing = 18bp
+2026-01-29 02:32:34,752 | INFO |     Mean LL: -142.19
+2026-01-29 02:32:34,753 | INFO |   Spacing = 19bp
+2026-01-29 02:32:35,668 | INFO |     Mean LL: -142.84
+2026-01-29 02:32:35,669 | INFO |   Spacing = 20bp
+2026-01-29 02:32:36,591 | INFO |     Mean LL: -143.12
+2026-01-29 02:32:36,592 | INFO |   Spacing = 21bp
+2026-01-29 02:32:37,512 | INFO |     Mean LL: -143.10
+2026-01-29 02:32:37,513 | INFO |   Spacing = 22bp
+2026-01-29 02:32:38,427 | INFO |     Mean LL: -142.27
+2026-01-29 02:32:38,427 | INFO |   Spacing = 23bp
+2026-01-29 02:32:39,334 | INFO |     Mean LL: -142.68
+2026-01-29 02:32:39,335 | INFO |   Spacing = 24bp
+2026-01-29 02:32:40,241 | INFO |     Mean LL: -143.36
+2026-01-29 02:32:40,242 | INFO |   Spacing = 25bp
+2026-01-29 02:32:41,152 | INFO |     Mean LL: -143.10
+2026-01-29 02:32:41,152 | INFO |   Peak spacing: 14bp (biological optimum is 17bp)
+2026-01-29 02:32:41,152 | INFO | 
+--- Experiment 4: Strand Orientation ---
+2026-01-29 02:32:41,152 | INFO |   Forward strand
+2026-01-29 02:32:42,071 | INFO |     Mean LL: -143.79
+2026-01-29 02:32:42,072 | INFO |   RC motifs in place
+2026-01-29 02:32:43,006 | INFO |     Mean LL: -142.83
+2026-01-29 02:32:43,007 | INFO |   Full reverse complement
+2026-01-29 02:32:43,925 | INFO |     Mean LL: -142.13
+2026-01-29 02:32:43,925 | INFO |   Scrambled motifs
+2026-01-29 02:32:44,838 | INFO |     Mean LL: -143.98
+2026-01-29 02:32:44,839 | INFO |   Strand accuracy: 0.440 (50% = strand-blind)
+2026-01-29 02:32:44,851 | INFO | Saved at_titration results to /home/bcheng/MITproject/data/results/at_titration_results.json
+2026-01-29 02:32:44,854 | INFO | Saved positional_sweep results to /home/bcheng/MITproject/data/results/positional_sweep_results.json
+2026-01-29 02:32:44,857 | INFO | Saved spacing results to /home/bcheng/MITproject/data/results/spacing_results.json
+2026-01-29 02:32:44,858 | INFO | Saved strand results to /home/bcheng/MITproject/data/results/strand_results.json
+2026-01-29 02:32:44,858 | INFO | 
+================================================================================
+2026-01-29 02:32:44,858 | INFO | RUNNING BIOPHYSICAL MODEL COMPARISON
+2026-01-29 02:32:44,858 | INFO | ================================================================================
+2026-01-29 02:32:44,859 | INFO | Generating test sequences...
+2026-01-29 02:32:44,894 | INFO | 
+--- PA-PWM ---
+2026-01-29 02:32:44,897 | INFO |   CSS: 0.870
+2026-01-29 02:32:44,897 | INFO |   SCR: 0.650
+2026-01-29 02:32:44,897 | INFO |   Broken mean: 9.97
+2026-01-29 02:32:44,897 | INFO |   Compensated mean: 13.16
+2026-01-29 02:32:44,897 | INFO | 
+--- Thermo ---
+2026-01-29 02:32:44,900 | INFO |   CSS: 0.630
+2026-01-29 02:32:44,900 | INFO |   SCR: 0.560
+2026-01-29 02:32:44,900 | INFO |   Broken mean: 18.48
+2026-01-29 02:32:44,900 | INFO |   Compensated mean: 19.32
+2026-01-29 02:32:44,900 | INFO | 
+--- Scan ---
+2026-01-29 02:32:45,013 | INFO |   CSS: 0.330
+2026-01-29 02:32:45,013 | INFO |   SCR: 0.310
+2026-01-29 02:32:45,013 | INFO |   Broken mean: 6.88
+2026-01-29 02:32:45,013 | INFO |   Compensated mean: -1.50
+2026-01-29 02:32:45,014 | INFO | 
+Saved biophysical results to /home/bcheng/MITproject/data/results/biophysical_comparison.json
+2026-01-29 02:32:45,014 | INFO | 
+================================================================================
+2026-01-29 02:32:45,014 | INFO | COMPUTING METRICS
+2026-01-29 02:32:45,014 | INFO | ================================================================================
+2026-01-29 02:32:46,367 | INFO | Loaded nt_500m results
+2026-01-29 02:32:46,367 | INFO | Loaded pwm results
+2026-01-29 02:32:46,368 | INFO | Loaded random results
+2026-01-29 02:32:46,369 | INFO | Loaded hyenadna results
+2026-01-29 02:32:46,370 | INFO | Loaded kmer results
+2026-01-29 02:32:46,371 | INFO | Loaded grover results
+2026-01-29 02:32:46,371 | INFO | 
+--- nt_500m ---
