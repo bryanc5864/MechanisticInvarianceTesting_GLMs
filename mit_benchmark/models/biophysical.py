@@ -105,18 +105,23 @@ class PositionAwarePWM:
     4. Extended -10 (TGn) can compensate for weak -10
     """
 
-    def __init__(self, tss_position: int = 60):
+    def __init__(self, tss_position: int = 60, pos_35: int = None,
+                 pos_10: int = None, pos_up: int = None, pos_ext10: int = None):
         """
         Args:
             tss_position: Position of transcription start site in 100bp sequence
+            pos_35: Explicit -35 position (overrides TSS-based calculation)
+            pos_10: Explicit -10 position (overrides TSS-based calculation)
+            pos_up: Explicit UP element position (overrides TSS-based calculation)
+            pos_ext10: Explicit extended -10 position (overrides TSS-based calculation)
         """
         self.tss = tss_position
 
-        # Expected positions relative to TSS
-        self.pos_35 = self.tss - 35  # Position 25 for TSS=60
-        self.pos_10 = self.tss - 10  # Position 50 for TSS=60
-        self.pos_UP = self.tss - 52  # Position 8 for TSS=60
-        self.pos_ext10 = self.pos_10 - 3  # Position 47 for TSS=60
+        # Use explicit positions if provided, otherwise compute from TSS
+        self.pos_35 = pos_35 if pos_35 is not None else self.tss - 35
+        self.pos_10 = pos_10 if pos_10 is not None else self.tss - 10
+        self.pos_UP = pos_up if pos_up is not None else self.tss - 52
+        self.pos_ext10 = pos_ext10 if pos_ext10 is not None else self.pos_10 - 3
 
         self.optimal_spacing = 17
 
@@ -205,12 +210,13 @@ class ThermodynamicModel:
         18: -0.1, 19: -0.5, 20: -1.0, 21: -1.5, 22: -2.0,
     }
 
-    def __init__(self, tss_position: int = 60):
+    def __init__(self, tss_position: int = 60, pos_35: int = None,
+                 pos_10: int = None, pos_up: int = None, pos_ext10: int = None):
         self.tss = tss_position
-        self.pos_35 = self.tss - 35
-        self.pos_10 = self.tss - 10
-        self.pos_UP = self.tss - 52
-        self.pos_ext10 = self.pos_10 - 3
+        self.pos_35 = pos_35 if pos_35 is not None else self.tss - 35
+        self.pos_10 = pos_10 if pos_10 is not None else self.tss - 10
+        self.pos_UP = pos_up if pos_up is not None else self.tss - 52
+        self.pos_ext10 = pos_ext10 if pos_ext10 is not None else self.pos_10 - 3
 
     def compute_dG(self, sequence: str) -> float:
         """Compute total binding free energy.
@@ -307,10 +313,11 @@ class PositionScanningModel:
     Score = motif_quality + position_penalty + arrangement_penalty
     """
 
-    def __init__(self, tss_position: int = 60):
+    def __init__(self, tss_position: int = 60, pos_35: int = None,
+                 pos_10: int = None):
         self.tss = tss_position
-        self.expected_35 = self.tss - 35
-        self.expected_10 = self.tss - 10
+        self.expected_35 = pos_35 if pos_35 is not None else self.tss - 35
+        self.expected_10 = pos_10 if pos_10 is not None else self.tss - 10
         self.optimal_spacing = 17
 
     def scan_motif(self, sequence: str, pwm: list) -> Tuple[int, float]:
@@ -399,15 +406,112 @@ class PositionScanningModel:
         return self.score(sequence)
 
 
+class PositionAwarePWM_NoComp(PositionAwarePWM):
+    """Ablation: PA-PWM without compensation logic.
+
+    Scores -35 and -10 at expected positions with spacing penalty,
+    but does NOT score UP element or extended -10.
+
+    If CSS ≈ 0.5 for this model, it confirms that compensation-specific
+    logic is required—not just positional encoding of core elements.
+    """
+
+    def score(self, sequence: str) -> float:
+        score = 0.0
+
+        # 1. Score -35 box at expected position
+        score += score_pwm(sequence, PWM_MINUS_35, self.pos_35)
+
+        # 2. Score -10 box at expected position
+        score += score_pwm(sequence, PWM_MINUS_10, self.pos_10)
+
+        # 3. Spacing penalty
+        actual_spacing = self.pos_10 - self.pos_35 - 6
+        spacing_penalty = -abs(actual_spacing - self.optimal_spacing) * 0.5
+        score += spacing_penalty
+
+        # NO UP element scoring
+        # NO extended -10 scoring
+        # NO compensation bonus
+
+        return score
+
+
+class PositionAwarePWM_NoPosition(PositionAwarePWM):
+    """Ablation: PA-PWM without positional encoding.
+
+    Scans the entire sequence for the best -35, -10, UP, and ext-10
+    matches anywhere, with no position constraints.
+
+    If CSS is high for this model, positional encoding is not needed.
+    If CSS ≈ 0.5, positional encoding is what makes PA-PWM work.
+    """
+
+    def score(self, sequence: str) -> float:
+        # Scan for best -35 anywhere
+        best_35 = max(
+            score_pwm(sequence, PWM_MINUS_35, p)
+            for p in range(len(sequence) - 6 + 1)
+        )
+        # Scan for best -10 anywhere
+        best_10 = max(
+            score_pwm(sequence, PWM_MINUS_10, p)
+            for p in range(len(sequence) - 6 + 1)
+        )
+        score = best_35 + best_10
+
+        # Scan for best UP element anywhere
+        best_up = max(
+            score_pwm(sequence, PWM_UP_PROXIMAL, p)
+            for p in range(len(sequence) - len(PWM_UP_PROXIMAL) + 1)
+        )
+        score += best_up * 0.5
+
+        # Scan for best extended -10 anywhere
+        best_ext10 = max(
+            score_pwm(sequence, PWM_EXTENDED_10, p)
+            for p in range(len(sequence) - len(PWM_EXTENDED_10) + 1)
+        )
+        if best_ext10 > 1.0 and best_10 < 5.0:
+            score += best_ext10 * 1.5
+        elif best_ext10 > 1.0:
+            score += best_ext10 * 0.5
+
+        return score
+
+
+# Generator-aligned positions (matching SequenceGenerator layout)
+GENERATOR_POSITIONS = {
+    'pos_35': 30,   # SequenceGenerator.MINUS_35_START
+    'pos_10': 53,   # SequenceGenerator.MINUS_10_START
+    'pos_up': 15,   # SequenceGenerator.UP_START
+    'pos_ext10': 50, # SequenceGenerator.EXTENDED_10_START
+}
+
+
 # Convenience functions for loading models
-def load_position_aware_pwm(tss: int = 60) -> PositionAwarePWM:
+def load_position_aware_pwm(tss: int = 60, align_to_generator: bool = True) -> PositionAwarePWM:
     """Load Position-Aware PWM model."""
+    if align_to_generator:
+        return PositionAwarePWM(tss_position=tss, **GENERATOR_POSITIONS)
     return PositionAwarePWM(tss_position=tss)
 
-def load_thermodynamic_model(tss: int = 60) -> ThermodynamicModel:
+def load_thermodynamic_model(tss: int = 60, align_to_generator: bool = True) -> ThermodynamicModel:
     """Load Thermodynamic model."""
+    if align_to_generator:
+        return ThermodynamicModel(tss_position=tss, **GENERATOR_POSITIONS)
     return ThermodynamicModel(tss_position=tss)
 
 def load_position_scanning_model(tss: int = 60) -> PositionScanningModel:
     """Load Position-Scanning model."""
     return PositionScanningModel(tss_position=tss)
+
+def load_papwm_no_comp(tss: int = 60, align_to_generator: bool = True) -> PositionAwarePWM_NoComp:
+    """Load PA-PWM ablation without compensation logic."""
+    if align_to_generator:
+        return PositionAwarePWM_NoComp(tss_position=tss, **GENERATOR_POSITIONS)
+    return PositionAwarePWM_NoComp(tss_position=tss)
+
+def load_papwm_no_position(tss: int = 60) -> PositionAwarePWM_NoPosition:
+    """Load PA-PWM ablation without positional encoding."""
+    return PositionAwarePWM_NoPosition(tss_position=tss)

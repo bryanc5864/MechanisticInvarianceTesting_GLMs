@@ -21,7 +21,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from mit_benchmark.models.biophysical import (
     PositionAwarePWM, ThermodynamicModel, PositionScanningModel,
-    reverse_complement
+    PositionAwarePWM_NoComp, PositionAwarePWM_NoPosition,
+    load_position_aware_pwm, load_thermodynamic_model, load_position_scanning_model,
+    load_papwm_no_comp, load_papwm_no_position,
+    reverse_complement, GENERATOR_POSITIONS,
 )
 
 random.seed(42)
@@ -39,69 +42,66 @@ def generate_background(length: int, at_fraction: float = 0.55) -> str:
     return ''.join(seq)
 
 
+# Motif positions matching SequenceGenerator layout
+POS_UP = 15
+POS_35 = 30
+POS_EXT10 = 50
+POS_10 = 53
+
+
 def generate_synthetic_broken() -> str:
     """Generate Class D: Synthetic broken (consensus -35, broken -10)."""
     seq = list(generate_background(100))
-    # -35 box: TTGACA at position 25
     for i, nt in enumerate("TTGACA"):
-        seq[25 + i] = nt
-    # Broken -10: TGTAAT at position 48 (17bp spacing)
+        seq[POS_35 + i] = nt
     for i, nt in enumerate("TGTAAT"):
-        seq[48 + i] = nt
+        seq[POS_10 + i] = nt
     return ''.join(seq)
 
 
 def generate_synthetic_compensated() -> str:
     """Generate Class E: Synthetic compensated (broken -10 + UP + ext-10)."""
     seq = list(generate_background(100))
-    # UP element: AAAAAARNR at position 8-16
     up_element = "AAAAAAGCA"
     for i, nt in enumerate(up_element):
-        seq[8 + i] = nt
-    # -35 box: TTGACA at position 25
+        seq[POS_UP + i] = nt
     for i, nt in enumerate("TTGACA"):
-        seq[25 + i] = nt
-    # Extended -10: TGT at position 45
+        seq[POS_35 + i] = nt
     for i, nt in enumerate("TGT"):
-        seq[45 + i] = nt
-    # Broken -10: TGTAAT at position 48
+        seq[POS_EXT10 + i] = nt
     for i, nt in enumerate("TGTAAT"):
-        seq[48 + i] = nt
+        seq[POS_10 + i] = nt
     return ''.join(seq)
 
 
 def generate_scrambled_compensated() -> str:
     """Generate Class H: Scrambled compensation (same composition, wrong positions)."""
     seq = list(generate_background(100))
-    # Scrambled UP: same composition as AAAAAAGCA, shuffled
     up_scrambled = list("AAAAAAGCA")
     random.shuffle(up_scrambled)
     for i, nt in enumerate(up_scrambled):
-        seq[8 + i] = nt
-    # -35 box: TTGACA at position 25
+        seq[POS_UP + i] = nt
     for i, nt in enumerate("TTGACA"):
-        seq[25 + i] = nt
-    # Scrambled ext-10: TGT -> randomized
+        seq[POS_35 + i] = nt
     ext10_scrambled = list("TGT")
     random.shuffle(ext10_scrambled)
     for i, nt in enumerate(ext10_scrambled):
-        seq[45 + i] = nt
-    # Broken -10: TGTAAT at position 48
+        seq[POS_EXT10 + i] = nt
     for i, nt in enumerate("TGTAAT"):
-        seq[48 + i] = nt
+        seq[POS_10 + i] = nt
     return ''.join(seq)
 
 
 def generate_correct_position_up() -> str:
-    """UP element at correct position (8-16)."""
+    """UP element at correct position."""
     seq = list(generate_background(100))
     up_element = "AAAAAAGCA"
     for i, nt in enumerate(up_element):
-        seq[8 + i] = nt
+        seq[POS_UP + i] = nt
     for i, nt in enumerate("TTGACA"):
-        seq[25 + i] = nt
+        seq[POS_35 + i] = nt
     for i, nt in enumerate("TATAAT"):
-        seq[48 + i] = nt
+        seq[POS_10 + i] = nt
     return ''.join(seq)
 
 
@@ -112,20 +112,18 @@ def generate_wrong_position_up() -> str:
     for i, nt in enumerate(up_element):
         seq[70 + i] = nt
     for i, nt in enumerate("TTGACA"):
-        seq[25 + i] = nt
+        seq[POS_35 + i] = nt
     for i, nt in enumerate("TATAAT"):
-        seq[48 + i] = nt
+        seq[POS_10 + i] = nt
     return ''.join(seq)
 
 
 def generate_spacing_variant(spacing: int) -> str:
     """Generate promoter with specific spacing between -35 and -10."""
     seq = list(generate_background(100))
-    # -35 at position 25
     for i, nt in enumerate("TTGACA"):
-        seq[25 + i] = nt
-    # -10 at position 25 + 6 + spacing
-    pos_10 = 25 + 6 + spacing
+        seq[POS_35 + i] = nt
+    pos_10 = POS_35 + 6 + spacing
     if pos_10 + 6 <= 100:
         for i, nt in enumerate("TATAAT"):
             seq[pos_10 + i] = nt
@@ -136,21 +134,19 @@ def generate_forward_promoter() -> str:
     """Forward strand promoter."""
     seq = list(generate_background(100))
     for i, nt in enumerate("TTGACA"):
-        seq[25 + i] = nt
+        seq[POS_35 + i] = nt
     for i, nt in enumerate("TATAAT"):
-        seq[48 + i] = nt
+        seq[POS_10 + i] = nt
     return ''.join(seq)
 
 
 def generate_reverse_in_place() -> str:
     """Reverse complement motifs at same positions."""
     seq = list(generate_background(100))
-    # RC of TTGACA = TGTCAA
     for i, nt in enumerate("TGTCAA"):
-        seq[25 + i] = nt
-    # RC of TATAAT = ATTATA
+        seq[POS_35 + i] = nt
     for i, nt in enumerate("ATTATA"):
-        seq[48 + i] = nt
+        seq[POS_10 + i] = nt
     return ''.join(seq)
 
 
@@ -181,11 +177,13 @@ def main():
     print("BIOPHYSICAL vs gLM COMPARISON")
     print("="*80)
 
-    # Initialize biophysical models
+    # Initialize biophysical models (aligned to generator positions)
     models = {
-        'PA-PWM': PositionAwarePWM(tss_position=60),
-        'Thermo': ThermodynamicModel(tss_position=60),
-        'Scan': PositionScanningModel(tss_position=60),
+        'PA-PWM': load_position_aware_pwm(),
+        'PA-PWM-NoComp': load_papwm_no_comp(),
+        'PA-PWM-NoPos': load_papwm_no_position(),
+        'Thermo': load_thermodynamic_model(),
+        'Scan': PositionScanningModel(pos_35=POS_35, pos_10=POS_10),
     }
 
     n_samples = 100
@@ -294,7 +292,7 @@ def main():
 
     # Biophysical models
     print("\nBIOPHYSICAL MODELS (explicit mechanism):")
-    for name in ['PA-PWM', 'Thermo', 'Scan']:
+    for name in ['PA-PWM', 'PA-PWM-NoComp', 'PA-PWM-NoPos', 'Thermo', 'Scan']:
         r = results[name]
         print(f"{name:<15} {r['css']:>10.3f} {r['scr']:>10.3f} {r['pos_acc']:>10.3f} "
               f"{r['spacing_peak']:>10}bp {r['strand_acc']:>10.3f}")
@@ -318,9 +316,11 @@ def main():
     print("KEY FINDINGS")
     print("="*80)
 
+    all_models = ['PA-PWM', 'PA-PWM-NoComp', 'PA-PWM-NoPos', 'Thermo', 'Scan']
+
     print("\n1. COMPENSATION SENSITIVITY (CSS):")
     print("   Biophysical models correctly recognize that UP + ext-10 compensate for broken -10")
-    for name in ['PA-PWM', 'Thermo', 'Scan']:
+    for name in all_models:
         print(f"   - {name}: CSS = {results[name]['css']:.3f}")
     print("   gLMs show weaker or no compensation recognition:")
     print("   - HyenaDNA: CSS = 0.630 (driven by AT content, not mechanism)")
@@ -328,26 +328,26 @@ def main():
 
     print("\n2. SCRAMBLE CONTROL RATIO (SCR):")
     print("   Biophysical models distinguish structured from scrambled motifs:")
-    for name in ['PA-PWM', 'Thermo', 'Scan']:
+    for name in all_models:
         print(f"   - {name}: SCR = {results[name]['scr']:.3f}")
     print("   gLMs cannot distinguish:")
     print("   - HyenaDNA: SCR = 0.48 (composition-blind)")
 
     print("\n3. POSITIONAL SENSITIVITY:")
     print("   Biophysical models know UP elements must be upstream of -35:")
-    for name in ['PA-PWM', 'Thermo', 'Scan']:
+    for name in all_models:
         print(f"   - {name}: P(correct > wrong) = {results[name]['pos_acc']:.3f}")
     print("   HyenaDNA: P(correct > wrong) = 0.58 (weak)")
 
     print("\n4. SPACING SENSITIVITY:")
     print("   Biophysical models peak at 17bp (biological optimum):")
-    for name in ['PA-PWM', 'Thermo', 'Scan']:
+    for name in all_models:
         print(f"   - {name}: peak at {results[name]['spacing_peak']}bp")
     print("   HyenaDNA: peak at 20bp (wrong)")
 
     print("\n5. STRAND SENSITIVITY:")
     print("   Biophysical models are strand-specific:")
-    for name in ['PA-PWM', 'Thermo', 'Scan']:
+    for name in all_models:
         print(f"   - {name}: P(forward > reverse) = {results[name]['strand_acc']:.3f}")
     print("   HyenaDNA: P(forward > reverse) = 0.53 (strand-blind)")
 

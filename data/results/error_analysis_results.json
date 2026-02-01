@@ -1,0 +1,209 @@
+{
+  "random": {
+    "css": 0.5,
+    "n_correct": 50,
+    "n_incorrect": 50,
+    "property_tests": {
+      "at_diff": {
+        "name": "AT% difference (E - D)",
+        "mean_correct": 0.0038000000000000013,
+        "mean_incorrect": 0.020599999999999997,
+        "p_value": 0.18724474930572635,
+        "t_stat": -1.3280549842985436
+      },
+      "e_props.at_content": {
+        "name": "AT% of compensated seq",
+        "mean_correct": 0.6026,
+        "mean_incorrect": 0.6056,
+        "p_value": 0.7537375712715474,
+        "t_stat": -0.31459553285333497
+      },
+      "d_props.at_content": {
+        "name": "AT% of broken seq",
+        "mean_correct": 0.5988,
+        "mean_incorrect": 0.585,
+        "p_value": 0.14316047287795539,
+        "t_stat": 1.4759603784463478
+      },
+      "e_props.max_at_run": {
+        "name": "Max AT run in compensated",
+        "mean_correct": 8.38,
+        "mean_incorrect": 8.48,
+        "p_value": 0.8148260984432005,
+        "t_stat": -0.23483587113736334
+      },
+      "e_props.upstream_at": {
+        "name": "Upstream AT% in compensated",
+        "mean_correct": 0.626,
+        "mean_incorrect": 0.6213333333333333,
+        "p_value": 0.7939502953208168,
+        "t_stat": 0.26189731079146505
+      },
+      "e_props.aa_freq": {
+        "name": "AA dinuc freq in compensated",
+        "mean_correct": 0.13010101010101008,
+        "mean_incorrect": 0.13010101010101008,
+        "p_value": 1.0,
+        "t_stat": 0.0
+      }
+    },
+    "correct_diff_mean": 0.8118175853965055,
+    "incorrect_diff_mean": -1.137506767811805
+  },
+  "hyenadna": {
+    "css": 0.63,
+    "n_correct": 63,
+    "n_incorrect": 37,
+    "property_tests": {
+      "at_diff": {
+        "name": "AT% difference (E - D)",
+        "mean_correct": 0.03476190476190476,
+        "mean_incorrect": -0.02621621621621622,
+        "p_value": 1.0284376191620427e-06,
+        "t_stat": 5.214032296499848
+      },
+      "e_props.at_content": {
+        "name": "AT% of compensated seq",
+        "mean_correct": 0.6166666666666668,
+        "mean_incorrect": 0.5827027027027026,
+        "p_value": 0.00040095984693198114,
+        "t_stat": 3.6654798049394683
+      },
+      "d_props.at_content": {
+        "name": "AT% of broken seq",
+        "mean_correct": 0.5819047619047618,
+        "mean_incorrect": 0.6089189189189189,
+        "p_value": 0.004981128805263158,
+        "t_stat": -2.873274530597803
+      },
+      "e_props.max_at_run": {
+        "name": "Max AT run in compensated",
+        "mean_correct": 8.825396825396826,
+        "mean_incorrect": 7.756756756756757,
+        "p_value": 0.014134692762974502,
+        "t_stat": 2.4985298818243966
+      },
+      "e_props.upstream_at": {
+        "name": "Upstream AT% in compensated",
+        "mean_correct": 0.639153439153439,
+        "mean_incorrect": 0.5972972972972972,
+        "p_value": 0.021893567984312655,
+        "t_stat": 2.329346966112843
+      },
+      "e_props.aa_freq": {
+        "name": "AA dinuc freq in compensated",
+        "mean_correct": 0.13516113516113518,
+        "mean_incorrect": 0.12148512148512149,
+        "p_value": 0.03752979392531398,
+        "t_stat": 2.108592264692911
+      }
+    },
+    "correct_diff_mean": 5.580282544332837,
+    "incorrect_diff_mean": -3.908616761903505
+  },
+  "kmer": {
+    "css": 0.43,
+    "n_correct": 43,
+    "n_incorrect": 57,
+    "property_tests": {
+      "at_diff": {
+        "name": "AT% difference (E - D)",
+        "mean_correct": -0.04395348837209303,
+        "mean_incorrect": 0.05456140350877193,
+        "p_value": 5.336589114016997e-21,
+        "t_stat": -12.023961260595934
+      },
+      "e_props.at_content": {
+        "name": "AT% of compensated seq",
+        "mean_correct": 0.5748837209302327,
+        "mean_incorrect": 0.6261403508771931,
+        "p_value": 8.210079397499229e-09,
+        "t_stat": -6.307373070123877
+      },
+      "d_props.at_content": {
+        "name": "AT% of broken seq",
+        "mean_correct": 0.6188372093023256,
+        "mean_incorrect": 0.5715789473684211,
+        "p_value": 1.1788646854542257e-07,
+        "t_stat": 5.71578896839095
+      },
+      "e_props.max_at_run": {
+        "name": "Max AT run in compensated",
+        "mean_correct": 7.627906976744186,
+        "mean_incorrect": 9.035087719298245,
+        "p_value": 0.0007862263640348605,
+        "t_stat": -3.4657717715357523
+      },
+      "e_props.upstream_at": {
+        "name": "Upstream AT% in compensated",
+        "mean_correct": 0.5976744186046511,
+        "mean_incorrect": 0.6432748538011696,
+        "p_value": 0.010183971409543172,
+        "t_stat": -2.620275514782477
+      },
+      "e_props.aa_freq": {
+        "name": "AA dinuc freq in compensated",
+        "mean_correct": 0.12074230678881843,
+        "mean_incorrect": 0.1371610845295056,
+        "p_value": 0.010005817786006467,
+        "t_stat": -2.626718935301712
+      }
+    },
+    "correct_diff_mean": 0.8529099959244398,
+    "incorrect_diff_mean": -1.0633889943371182
+  },
+  "grover": {
+    "css": 0.52,
+    "n_correct": 52,
+    "n_incorrect": 48,
+    "property_tests": {
+      "at_diff": {
+        "name": "AT% difference (E - D)",
+        "mean_correct": 0.03096153846153846,
+        "mean_incorrect": -0.008124999999999999,
+        "p_value": 0.0017531347094549188,
+        "t_stat": 3.2175037365222785
+      },
+      "e_props.at_content": {
+        "name": "AT% of compensated seq",
+        "mean_correct": 0.6092307692307692,
+        "mean_incorrect": 0.5985416666666666,
+        "p_value": 0.2626293900894925,
+        "t_stat": 1.1266792987349996
+      },
+      "d_props.at_content": {
+        "name": "AT% of broken seq",
+        "mean_correct": 0.5782692307692308,
+        "mean_incorrect": 0.6066666666666667,
+        "p_value": 0.00216593145018686,
+        "t_stat": -3.149882570657921
+      },
+      "e_props.max_at_run": {
+        "name": "Max AT run in compensated",
+        "mean_correct": 8.903846153846153,
+        "mean_incorrect": 7.916666666666667,
+        "p_value": 0.01915786013387889,
+        "t_stat": 2.3818297458912707
+      },
+      "e_props.upstream_at": {
+        "name": "Upstream AT% in compensated",
+        "mean_correct": 0.6423076923076922,
+        "mean_incorrect": 0.6034722222222222,
+        "p_value": 0.027919635740758647,
+        "t_stat": 2.231601711534696
+      },
+      "e_props.aa_freq": {
+        "name": "AA dinuc freq in compensated",
+        "mean_correct": 0.13034188034188032,
+        "mean_incorrect": 0.12984006734006734,
+        "p_value": 0.9377428952714941,
+        "t_stat": 0.07830778247069825
+      }
+    },
+    "correct_diff_mean": 0.00020639481338618609,
+    "incorrect_diff_mean": -0.0002342301201376055
+  },
+  "cross_model": {
+    "description": "See terminal output for cross-model agreement"
+  }
+}

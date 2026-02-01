@@ -299,6 +299,93 @@ def run_glm_models(gpu_id=1):
     except Exception as e:
         logger.error(f"GROVER failed: {e}")
 
+    # --- DNABERT-2 ---
+    logger.info("\n--- DNABERT-2 ---")
+    try:
+        logger.info("Loading DNABERT-2 model...")
+        tokenizer = AutoTokenizer.from_pretrained(
+            "zhihan1996/DNABERT-2-117M", trust_remote_code=True
+        )
+        model = AutoModel.from_pretrained(
+            "zhihan1996/DNABERT-2-117M", trust_remote_code=True
+        )
+        model.to('cuda')
+        model.eval()
+        logger.info("DNABERT-2 loaded successfully")
+
+        def compute_dnabert2_score(sequence):
+            """Compute pseudo-log-likelihood for DNABERT-2."""
+            with torch.no_grad():
+                inputs = tokenizer(sequence, return_tensors="pt", add_special_tokens=True)
+                input_ids = inputs["input_ids"].to('cuda')
+                outputs = model(input_ids)
+                embeddings = outputs.last_hidden_state
+                score = embeddings.mean().item()
+            return score
+
+        logger.info("Computing DNABERT-2 scores...")
+        dnabert2_scores = {}
+        for i, (seq_id, seq_data) in enumerate(sequences.items()):
+            seq = seq_data['sequence'] if isinstance(seq_data, dict) else seq_data
+            score = compute_dnabert2_score(seq)
+            dnabert2_scores[seq_id] = score
+            if (i + 1) % 100 == 0:
+                logger.info(f"  Processed {i+1}/{len(sequences)} sequences")
+
+        results['dnabert2'] = dnabert2_scores
+        logger.info(f"DNABERT-2: Computed {len(dnabert2_scores)} scores")
+        logger.info(f"DNABERT-2: Mean score = {np.mean(list(dnabert2_scores.values())):.4f}")
+
+        del model, tokenizer
+        torch.cuda.empty_cache()
+
+    except Exception as e:
+        logger.error(f"DNABERT-2 failed: {e}")
+
+    # --- Caduceus ---
+    logger.info("\n--- Caduceus ---")
+    try:
+        logger.info("Loading Caduceus model...")
+        tokenizer = AutoTokenizer.from_pretrained(
+            "kuleshov-group/caduceus-ps_seqlen-131k_d_model-256_n_layer-16",
+            trust_remote_code=True
+        )
+        model = AutoModel.from_pretrained(
+            "kuleshov-group/caduceus-ps_seqlen-131k_d_model-256_n_layer-16",
+            trust_remote_code=True
+        )
+        model.to('cuda')
+        model.eval()
+        logger.info("Caduceus loaded successfully")
+
+        def compute_caduceus_score(sequence):
+            with torch.no_grad():
+                inputs = tokenizer(sequence, return_tensors="pt", add_special_tokens=True)
+                input_ids = inputs["input_ids"].to('cuda')
+                outputs = model(input_ids)
+                embeddings = outputs.last_hidden_state
+                score = embeddings.mean().item()
+            return score
+
+        logger.info("Computing Caduceus scores...")
+        caduceus_scores = {}
+        for i, (seq_id, seq_data) in enumerate(sequences.items()):
+            seq = seq_data['sequence'] if isinstance(seq_data, dict) else seq_data
+            score = compute_caduceus_score(seq)
+            caduceus_scores[seq_id] = score
+            if (i + 1) % 100 == 0:
+                logger.info(f"  Processed {i+1}/{len(sequences)} sequences")
+
+        results['caduceus'] = caduceus_scores
+        logger.info(f"Caduceus: Computed {len(caduceus_scores)} scores")
+        logger.info(f"Caduceus: Mean score = {np.mean(list(caduceus_scores.values())):.4f}")
+
+        del model, tokenizer
+        torch.cuda.empty_cache()
+
+    except Exception as e:
+        logger.error(f"Caduceus failed: {e}")
+
     # Save results
     for model_name, scores in results.items():
         output_path = PROJECT_ROOT / f"data/results/{model_name}_results.json"
@@ -596,13 +683,19 @@ def run_biophysical_comparison():
     logger.info("="*80)
 
     from mit_benchmark.models.biophysical import (
-        PositionAwarePWM, ThermodynamicModel, PositionScanningModel
+        PositionScanningModel,
+        load_position_aware_pwm, load_thermodynamic_model,
+        load_papwm_no_comp, load_papwm_no_position,
+        GENERATOR_POSITIONS,
     )
 
     models = {
-        'PA-PWM': PositionAwarePWM(tss_position=60),
-        'Thermo': ThermodynamicModel(tss_position=60),
-        'Scan': PositionScanningModel(tss_position=60),
+        'PA-PWM': load_position_aware_pwm(),
+        'PA-PWM-NoComp': load_papwm_no_comp(),
+        'PA-PWM-NoPos': load_papwm_no_position(),
+        'Thermo': load_thermodynamic_model(),
+        'Scan': PositionScanningModel(pos_35=GENERATOR_POSITIONS['pos_35'],
+                                       pos_10=GENERATOR_POSITIONS['pos_10']),
     }
 
     n_samples = 100
@@ -619,26 +712,32 @@ def run_biophysical_comparison():
     # Generate sequences
     logger.info("Generating test sequences...")
 
+    # Use main generator positions for consistency
+    P35 = GENERATOR_POSITIONS['pos_35']   # 30
+    P10 = GENERATOR_POSITIONS['pos_10']   # 53
+    PUP = GENERATOR_POSITIONS['pos_up']   # 15
+    PEXT = GENERATOR_POSITIONS['pos_ext10']  # 50
+
     broken_seqs = []
     for _ in range(n_samples):
         seq = list(generate_background(100))
         for i, nt in enumerate("TTGACA"):
-            seq[25 + i] = nt
+            seq[P35 + i] = nt
         for i, nt in enumerate("TGTAAT"):
-            seq[48 + i] = nt
+            seq[P10 + i] = nt
         broken_seqs.append(''.join(seq))
 
     compensated_seqs = []
     for _ in range(n_samples):
         seq = list(generate_background(100))
         for i, nt in enumerate("AAAAAAGCA"):
-            seq[8 + i] = nt
+            seq[PUP + i] = nt
         for i, nt in enumerate("TTGACA"):
-            seq[25 + i] = nt
+            seq[P35 + i] = nt
         for i, nt in enumerate("TGT"):
-            seq[45 + i] = nt
+            seq[PEXT + i] = nt
         for i, nt in enumerate("TGTAAT"):
-            seq[48 + i] = nt
+            seq[P10 + i] = nt
         compensated_seqs.append(''.join(seq))
 
     scrambled_seqs = []
@@ -647,15 +746,15 @@ def run_biophysical_comparison():
         up = list("AAAAAAGCA")
         random.shuffle(up)
         for i, nt in enumerate(up):
-            seq[8 + i] = nt
+            seq[PUP + i] = nt
         for i, nt in enumerate("TTGACA"):
-            seq[25 + i] = nt
+            seq[P35 + i] = nt
         ext = list("TGT")
         random.shuffle(ext)
         for i, nt in enumerate(ext):
-            seq[45 + i] = nt
+            seq[PEXT + i] = nt
         for i, nt in enumerate("TGTAAT"):
-            seq[48 + i] = nt
+            seq[P10 + i] = nt
         scrambled_seqs.append(''.join(seq))
 
     results = {}
@@ -862,13 +961,46 @@ def main():
     else:
         logger.info("Skipping extended experiments (--skip-gpu flag)")
 
-    # 4. Biophysical comparison (CPU)
+    # 4. Biophysical comparison with ablations (CPU)
     run_biophysical_comparison()
 
-    # 5. Compute metrics
+    # 5. Critique-addressing experiments (CPU-only parts)
+    logger.info("\n" + "="*80)
+    logger.info("RUNNING CRITIQUE-ADDRESSING EXPERIMENTS")
+    logger.info("="*80)
+
+    try:
+        logger.info("\n--- Negative MES Investigation ---")
+        import subprocess
+        subprocess.run(
+            [sys.executable, str(PROJECT_ROOT / "scripts/experiment_negative_mes.py")],
+            cwd=str(PROJECT_ROOT),
+        )
+    except Exception as e:
+        logger.error(f"Negative MES investigation failed: {e}")
+
+    try:
+        logger.info("\n--- Dinucleotide Control ---")
+        subprocess.run(
+            [sys.executable, str(PROJECT_ROOT / "scripts/experiment_dinucleotide_control.py")],
+            cwd=str(PROJECT_ROOT),
+        )
+    except Exception as e:
+        logger.error(f"Dinucleotide control failed: {e}")
+
+    try:
+        logger.info("\n--- Error Analysis ---")
+        subprocess.run(
+            [sys.executable, str(PROJECT_ROOT / "scripts/experiment_error_analysis.py")],
+            cwd=str(PROJECT_ROOT),
+        )
+    except Exception as e:
+        logger.error(f"Error analysis failed: {e}")
+
+    # 6. Compute metrics
     compute_metrics()
 
-    # 6. Generate summary
+    # 7. Generate summary
     generate_summary()
 
     logger.info("\n" + "#"*80)
