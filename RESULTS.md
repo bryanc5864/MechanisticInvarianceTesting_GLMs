@@ -464,7 +464,7 @@ This heuristic happens to correlate with promoter function (UP elements are AT-r
 5. **AT content dominates** — r=0.784 (HyenaDNA), r=0.961 (Evo2-1B)
 6. **Error analysis confirms AT%-driven successes** — p=1e-6 for HyenaDNA
 
-In contrast, biophysical models with explicit positional and compensation logic achieve CSS=1.000 and SCR=0.980. Ablation shows removing compensation logic produces CSS=0.000 (tied scores), and removing positional encoding produces CSS=0.630 — matching HyenaDNA exactly.
+In contrast, biophysical models with explicit positional and compensation logic achieve CSS=1.000 and SCR=0.980. Even RPA-PWM, which uses only relative biological constraints without hardcoded positions, achieves CSS=1.000 and SCR=0.920. Ablation shows removing compensation logic produces CSS=0.000 (tied scores), and removing positional encoding produces CSS=0.630 — matching HyenaDNA exactly.
 
 These results are consistent with **shallow statistical learning** rather than **mechanistic understanding** of promoter regulation.
 
@@ -477,16 +477,18 @@ To demonstrate that the mechanistic tests are solvable, we implemented biophysic
 ### Models
 
 1. **PA-PWM (Position-Aware PWM)**: Scores -35/-10 boxes at expected positions with spacing and compensation bonuses
-2. **PA-PWM-NoComp (Ablation)**: Same as PA-PWM but without UP element or extended -10 scoring — tests whether compensation-specific logic is required
-3. **PA-PWM-NoPos (Ablation)**: Scans for best motif matches anywhere with no positional constraints — tests whether positional encoding matters
-4. **Thermo (Thermodynamic)**: Free energy-based binding model with positional constraints
-5. **Scan (Position-Scanning)**: Finds best motifs, then penalizes deviation from expected positions
+2. **RPA-PWM (Relative Position-Aware PWM)**: Scans for motifs on both strands with NO position assumptions; enforces only relative biological constraints (spacing 17±2bp, UP upstream of -35, ext-10 adjacent to -10, strand consistency). Addresses the PA-PWM circularity critique.
+3. **PA-PWM-NoComp (Ablation)**: Same as PA-PWM but without UP element or extended -10 scoring — tests whether compensation-specific logic is required
+4. **PA-PWM-NoPos (Ablation)**: Scans for best motif matches anywhere with no positional constraints — tests whether positional encoding matters
+5. **Thermo (Thermodynamic)**: Free energy-based binding model with positional constraints
+6. **Scan (Position-Scanning)**: Finds best motifs, then penalizes deviation from expected positions
 
 ### Results (Benchmark Sequences)
 
 | Model | Type | CSS | SCR | Notes |
 |-------|------|-----|-----|-------|
 | **PA-PWM** | Biophysical | **1.000** | **0.980** | Full positional + compensation |
+| **RPA-PWM** | Biophysical | **1.000** | **0.920** | Relative constraints only (no hardcoded positions) |
 | PA-PWM-NoComp | Ablation | 0.000† | 0.000† | No UP/ext-10 scoring |
 | PA-PWM-NoPos | Ablation | 0.630 | 0.560 | No positional constraints |
 | **Thermo** | Biophysical | **0.970** | **0.680** | Free energy model |
@@ -505,18 +507,45 @@ To demonstrate that the mechanistic tests are solvable, we implemented biophysic
 
 The biophysical comparison script generates its own sequences and tests additional capabilities:
 
-| Model | CSS | SCR | Peak Pos | Spacing Peak | Strand (Fwd-Scr) |
-|-------|-----|-----|----------|--------------|-------------------|
-| PA-PWM | 1.000 | 0.970 | 15 (correct) | 17bp | +large |
-| PA-PWM-NoComp | 0.000 | 0.000 | -- | 17bp | +large |
-| PA-PWM-NoPos | 0.660 | 0.510 | -- | 18bp | +large |
-| Thermo | 1.000 | 0.830 | -- | 17bp | +large |
-| HyenaDNA | 0.630 | 0.480 | 0 (wrong) | 14bp | -0.19 |
-| Evo2-1B | 0.600 | 0.460 | 90 (wrong) | 15bp | -0.48 |
-| Caduceus | 0.490 | 0.420 | 80 (wrong) | 20bp | -0.46 |
-| Scan | 0.440 | 0.420 | -- | 17bp | +large |
+| Model | CSS | SCR | Peak Pos | Spacing Peak | Strand (Fwd-Scr) | AT Corr |
+|-------|-----|-----|----------|--------------|-------------------|---------|
+| PA-PWM | 1.000 | 0.970 | 15 (correct) | 17bp | +large | ~0 |
+| RPA-PWM | 1.000 | 0.920 | 5-20 (correct range) | 17bp | +5.66 | 0.979 |
+| PA-PWM-NoComp | 0.000 | 0.000 | -- | 17bp | +large | ~0 |
+| PA-PWM-NoPos | 0.660 | 0.510 | -- | 18bp | +large | ~0 |
+| Thermo | 1.000 | 0.830 | -- | 17bp | +large | ~0 |
+| HyenaDNA | 0.630 | 0.480 | 0 (wrong) | 14bp | -0.19 | 0.784 |
+| Evo2-1B | 0.600 | 0.460 | 90 (wrong) | 15bp | -0.48 | 0.961 |
+| Caduceus | 0.490 | 0.420 | 80 (wrong) | 20bp | -0.46 | 0.874 |
+| Scan | 0.440 | 0.420 | -- | 17bp | +large | ~0 |
 
-### Ablation Analysis
+### RPA-PWM: Addressing the Circularity Critique
+
+**Critique**: "PA-PWM hardcodes benchmark-specific positions (30-35, 53-58), so it succeeds by construction."
+
+**RPA-PWM** addresses this by encoding ONLY relative biological constraints:
+- Scans both strands for -35 and -10 motifs (no position assumptions)
+- Requires -35/-10 spacing of 15-19bp (peaks at 17bp)
+- UP element must be upstream of -35 (not at a fixed position)
+- Extended -10 must be immediately upstream of -10
+- Strand consistency bonus
+
+**Results on benchmark sequences**: CSS=1.000, SCR=0.920 — demonstrating that relative biological grammar alone is sufficient to solve the MIT benchmark without any benchmark-specific position knowledge.
+
+**Diagnostic results**:
+
+| Test | RPA-PWM | gLMs (best) | Interpretation |
+|------|---------|-------------|----------------|
+| Spacing peak | 17bp (correct) | 14-20bp (wrong) | RPA-PWM encodes optimal spacing |
+| Strand preference | Forward (correct) | 44-50% (chance) | RPA-PWM is strand-aware |
+| UP positional ablation | Upstream helps, downstream doesn't | No positional effect | RPA-PWM enforces relative position |
+| AT-LL correlation | r=0.979 | r=0.784-0.961 | Both are AT-sensitive (see caveat below) |
+
+**AT sensitivity caveat**: RPA-PWM shows high AT correlation (r=0.979) because its UP element detector responds to AT-rich regions. However, unlike gLMs, RPA-PWM channels this through positional logic — it only awards UP bonuses *upstream of -35*, not anywhere in the sequence. This is reflected in its high SCR (0.920 vs gLMs ~0.46): RPA-PWM correctly distinguishes structured from scrambled compensation, while gLMs cannot.
+
+See `scripts/rpa_pwm.py` for implementation.
+
+### PA-PWM Ablation Analysis
 
 The PA-PWM ablations address the critique that "PA-PWM is tuned to win":
 
@@ -527,17 +556,19 @@ The PA-PWM ablations address the critique that "PA-PWM is tuned to win":
 ### Key Findings
 
 1. **PA-PWM achieves CSS=1.000** vs HyenaDNA's 0.630 — explicit compensation logic at correct positions perfectly detects compensation
-2. **PA-PWM has SCR=0.980** — strongly distinguishes structured from scrambled motifs (vs HyenaDNA at 0.480)
-3. **Removing compensation logic drops CSS to 0.000** — without UP/ext-10 scoring, D and E are indistinguishable
-4. **Removing positional encoding drops CSS to 0.630 and SCR to 0.560** — matches HyenaDNA, confirming that positional constraints are what separates biophysical from gLM performance
+2. **RPA-PWM also achieves CSS=1.000 and SCR=0.920** — using only relative constraints (no hardcoded positions), addressing the circularity critique
+3. **PA-PWM has SCR=0.980** — strongly distinguishes structured from scrambled motifs (vs HyenaDNA at 0.480)
+4. **Removing compensation logic drops CSS to 0.000** — without UP/ext-10 scoring, D and E are indistinguishable
+5. **Removing positional encoding drops CSS to 0.630 and SCR to 0.560** — matches HyenaDNA, confirming that positional constraints are what separates biophysical from gLM performance
 
 ### Interpretation
 
 This comparison demonstrates that:
 1. The mechanistic tests ARE solvable with explicit biological knowledge
-2. The tested gLMs have not learned equivalent mechanistic principles
-3. Both compensation logic AND positional encoding are needed — removing either one makes the model perform at or below gLM level
-4. ~100 parameters of explicit biological knowledge (PWM weights, positions, spacing rules) outperform gLMs with orders of magnitude more parameters on these mechanistic tests
+2. **Even relative biological constraints suffice** — RPA-PWM achieves CSS=1.000 without knowing benchmark-specific absolute positions, using only spacing, upstream/downstream relationships, and strand consistency
+3. The tested gLMs have not learned equivalent mechanistic principles
+4. Both compensation logic AND positional encoding are needed — removing either one makes the model perform at or below gLM level
+5. ~100 parameters of explicit biological knowledge (PWM weights, positions, spacing rules) outperform gLMs with orders of magnitude more parameters on these mechanistic tests
 
 ---
 
@@ -645,6 +676,9 @@ python scripts/run_all_experiments.py --skip-gpu
 
 # Run biophysical comparison only
 python scripts/run_biophysical_comparison.py
+
+# Run RPA-PWM (fair baseline with relative constraints only)
+python scripts/rpa_pwm.py
 
 # Run critique-addressing experiments
 python scripts/experiment_dinucleotide_control.py
