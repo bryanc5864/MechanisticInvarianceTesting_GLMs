@@ -15,21 +15,21 @@ This benchmark evaluates whether genomic language models (gLMs) encode the mecha
 
 | Model | CSS | 95% CI | p-value (raw) | p-value (FDR) | Significant |
 |-------|-----|--------|---------------|---------------|-------------|
-| HyenaDNA | **0.630** | [0.530, 0.730] | **0.0043** | **0.0215** | **Yes** |
-| GROVER | 0.520 | [0.430, 0.620] | 0.3456 | 0.4320 | No |
-| Random | 0.500 | [0.400, 0.600] | 0.5000 | 0.5000 | No |
-| k-mer | 0.430 | [0.340, 0.530] | 0.9187 | 0.9187 | No |
+| HyenaDNA | **0.630** | [0.530, 0.730] | **0.0043** | **0.0258** | **Yes** |
+| NT-500M | 0.540 | [0.440, 0.640] | 0.2132 | 0.6397 | No |
+| GROVER | 0.520 | [0.430, 0.620] | 0.3456 | 0.6912 | No |
+| Random | 0.500 | [0.400, 0.600] | 0.5000 | 0.7500 | No |
+| k-mer | 0.430 | [0.340, 0.530] | 0.9187 | 1.0000 | No |
 | PWM | 0.000 | [0.000, 0.000] | 1.0000 | 1.0000 | No |
 
-> **Note**: p-values adjusted using Benjamini-Hochberg FDR correction across all 5 CSS tests. HyenaDNA remains significant at FDR < 0.05.
-
-> **Note**: NT-500M excluded from re-run due to transformers version incompatibility. Original result: CSS=0.540 (not significant).
+> **Note**: p-values adjusted using Benjamini-Hochberg FDR correction across all 6 CSS tests. HyenaDNA remains significant at FDR < 0.05.
 
 ## Full Metrics (with Bootstrap 95% CIs)
 
 | Model | CSS [CI] | MES Natural [CI] | MES Synthetic [CI] | SCR [CI] | SCR p-value |
 |-------|----------|-------------------|---------------------|----------|-------------|
 | HyenaDNA | 0.630 [0.53, 0.73] | -0.01 [-0.29, 0.27] | -0.34 [-0.62, -0.06] | 0.480 [0.34, 0.62] | 0.712 |
+| NT-500M | 0.540 [0.44, 0.64] | -0.00 [-0.28, 0.27] | -0.10 [-0.37, 0.16] | 0.400 [0.26, 0.56] | 0.920 |
 | GROVER | 0.520 [0.43, 0.62] | -0.08 [-0.36, 0.20] | -0.05 [-0.33, 0.23] | 0.520 [0.38, 0.66] | 0.388 |
 | Random | 0.500 [0.40, 0.60] | -0.14 [-0.42, 0.14] | -0.04 [-0.32, 0.24] | 0.460 [0.32, 0.60] | 0.612 |
 | k-mer | 0.430 [0.34, 0.53] | -0.17 [-0.45, 0.11] | 0.11 [-0.17, 0.39] | 0.500 [0.36, 0.64] | 0.500 |
@@ -49,24 +49,28 @@ This benchmark evaluates whether genomic language models (gLMs) encode the mecha
 
 | Test | p-value (raw) | p-value (FDR) | Significant (FDR < 0.05) |
 |------|---------------|---------------|--------------------------|
-| HyenaDNA CSS vs 0.5 | 0.0043 | 0.0215 | Yes |
-| GROVER CSS vs 0.5 | 0.3456 | 0.4320 | No |
-| Random CSS vs 0.5 | 0.5000 | 0.5000 | No |
-| k-mer CSS vs 0.5 | 0.9187 | 0.9187 | No |
+| HyenaDNA CSS vs 0.5 | 0.0043 | 0.0258 | Yes |
+| NT-500M CSS vs 0.5 | 0.2132 | 0.6397 | No |
+| GROVER CSS vs 0.5 | 0.3456 | 0.6912 | No |
+| Random CSS vs 0.5 | 0.5000 | 0.7500 | No |
+| k-mer CSS vs 0.5 | 0.9187 | 1.0000 | No |
 | PWM CSS vs 0.5 | 1.0000 | 1.0000 | No |
 | HyenaDNA SCR vs 0.5 | 0.7120 | 0.7120 | No |
+| NT-500M SCR vs 0.5 | 0.9203 | 0.9203 | No |
 
 > Benjamini-Hochberg FDR correction applied across all tests.
 
 ## Key Findings
 
-1. **HyenaDNA is the only tested model showing statistically significant compensation sensitivity** (CSS=0.630, FDR-corrected p=0.0215), but extended experiments reveal this signal is driven by AT content correlation rather than mechanistic understanding.
+1. **HyenaDNA is the only tested model showing statistically significant compensation sensitivity** (CSS=0.630, FDR-corrected p=0.0258), but extended experiments reveal this signal is driven by AT content correlation rather than mechanistic understanding.
 
 2. **No tested model shows significant structure sensitivity**: SCR is indistinguishable from 0.5 for all models (FDR-corrected p > 0.05), indicating models respond similarly to structured and scrambled compensatory elements.
 
-3. **Negative MES across models**: All gLMs tested score intact sequences (TATAAT) *lower* than broken (TGTAAT), suggesting they have learned genome-wide frequency priors that contradict functional importance (see [Negative MES Investigation](#negative-mes-investigation)).
+3. **NT-500M shows no significant compensation sensitivity**: CSS=0.540 (FDR-corrected p=0.640), with SCR=0.400 indicating no structure sensitivity. NT-500M also shows near-zero MES (-0.00 natural, -0.10 synthetic), consistent with indifference to motif identity.
 
-4. **PWM baseline achieves CSS=0.000** because it evaluates only the -35 and -10 boxes, giving identical scores to broken and compensated sequences (both have the same broken -10).
+4. **Negative MES across models**: All gLMs tested score intact sequences (TATAAT) *lower* than broken (TGTAAT), suggesting they have learned genome-wide frequency priors that contradict functional importance (see [Negative MES Investigation](#negative-mes-investigation)).
+
+5. **PWM baseline achieves CSS=0.000** because it evaluates only the -35 and -10 boxes, giving identical scores to broken and compensated sequences (both have the same broken -10).
 
 ## Sequence Classes
 
@@ -151,7 +155,7 @@ See `scripts/experiment_negative_mes.py` for full analysis of all 18 single-nucl
 
 ## Interpretation
 
-HyenaDNA exhibits statistically significant compensation sensitivity (CSS=0.630, FDR-corrected p=0.0215), but this appears to be driven by a learned heuristic: **"AT-rich upstream sequences correlate with functional promoters."**
+HyenaDNA exhibits statistically significant compensation sensitivity (CSS=0.630, FDR-corrected p=0.0258), but this appears to be driven by a learned heuristic: **"AT-rich upstream sequences correlate with functional promoters."**
 
 This is technically correct -- UP elements are AT-rich and do enhance transcription (Estrem et al. 1998; Ross et al. 1993). However, the tested models fail to encode the **positional logic** that makes this work biologically:
 
@@ -317,6 +321,7 @@ To demonstrate that the mechanistic tests are solvable, we implemented biophysic
 | PA-PWM-NoPos | Ablation | 0.630 | 0.560 | No positional constraints |
 | **Thermo** | Biophysical | **0.970** | **0.680** | Free energy model |
 | HyenaDNA | gLM | 0.630 | 0.480 | AT-driven |
+| NT-500M | gLM | 0.540 | 0.400 | Not significant |
 | GROVER | gLM | 0.520 | 0.520 | Near random |
 | Random | Baseline | 0.500 | 0.460 | Random baseline |
 | Scan | Biophysical | 0.430 | 0.540 | Weak position scanning |
@@ -435,13 +440,13 @@ See `scripts/experiment_mpra_validation.py` for implementation.
 
 ## Limitations
 
-1. **Model coverage**: Results are from 3 gLMs (HyenaDNA, GROVER, NT-500M) plus baselines. DNABERT-2, Caduceus, and Evo2 should be tested to assess generality across architectures. Support for these models has been added to `run_all_experiments.py`.
+1. **Model coverage**: Results are from 3 gLMs (HyenaDNA, GROVER, NT-500M) plus baselines. DNABERT-2, Caduceus, and Evo2 should be tested to assess generality across architectures. Support for these models has been added to `run_all_experiments.py`. NT-500M was scored using pseudo-log-likelihood (PLL).
 
 2. **Single regulatory system**: All experiments use E. coli σ70 promoters. Eukaryotic enhancers, yeast promoters, or other bacterial sigma factors may show different patterns.
 
 3. **No wet-lab validation**: We use published literature and biophysical models as proxies for experimental validation. Direct MPRA validation of our synthetic sequences would strengthen claims.
 
-4. **Scoring method**: For masked LMs (NT-500M, GROVER), we use mean embedding values as proxy scores rather than true pseudo-log-likelihood, which may underestimate model capabilities.
+4. **Scoring method**: NT-500M uses proper pseudo-log-likelihood (PLL) scoring. GROVER uses mean embedding values as proxy scores rather than true PLL, which may underestimate its capabilities.
 
 5. **Claim scope**: Our conclusions apply to the specific models, promoter system, and mechanistic tests evaluated here. We do not claim these findings generalize to all gLMs or all regulatory contexts.
 
