@@ -306,9 +306,19 @@ def run_glm_models(gpu_id=1):
         tokenizer = AutoTokenizer.from_pretrained(
             "zhihan1996/DNABERT-2-117M", trust_remote_code=True
         )
-        model = AutoModel.from_pretrained(
-            "zhihan1996/DNABERT-2-117M", trust_remote_code=True
-        )
+        # DNABERT-2 has a custom BertConfig that conflicts with transformers>=4.40.
+        # Load config separately and use standard BertModel as fallback.
+        try:
+            model = AutoModel.from_pretrained(
+                "zhihan1996/DNABERT-2-117M", trust_remote_code=True
+            )
+        except ValueError:
+            logger.info("AutoModel failed, trying BertModel with standard config...")
+            from transformers import BertModel, BertConfig
+            config = BertConfig.from_pretrained("zhihan1996/DNABERT-2-117M")
+            model = BertModel.from_pretrained(
+                "zhihan1996/DNABERT-2-117M", config=config, ignore_mismatched_sizes=True
+            )
         model.to('cuda')
         model.eval()
         logger.info("DNABERT-2 loaded successfully")
@@ -385,6 +395,8 @@ def run_glm_models(gpu_id=1):
 
     except Exception as e:
         logger.error(f"Caduceus failed: {e}")
+        if "mamba_ssm" in str(e):
+            logger.error("  Install mamba_ssm: pip install mamba_ssm (requires CUDA >= 11.6 and nvcc in PATH)")
 
     # Save results
     for model_name, scores in results.items():
@@ -817,10 +829,16 @@ def compute_metrics():
     results_dir = PROJECT_ROOT / "data/results"
     model_results = {}
 
+    # Files that are experiment outputs, not model score files
+    exclude_files = {
+        'all_results.json', 'metrics.json', 'biophysical_comparison.json',
+        'at_titration_results.json', 'positional_sweep_results.json',
+        'spacing_results.json', 'strand_results.json',
+        'negative_mes_results.json', 'error_analysis_results.json',
+        'dinucleotide_control_sequences.json', 'mpra_library.json',
+    }
     for result_file in results_dir.glob("*_results.json"):
-        if result_file.name in ['all_results.json', 'metrics.json', 'biophysical_comparison.json',
-                                 'at_titration_results.json', 'positional_sweep_results.json',
-                                 'spacing_results.json', 'strand_results.json']:
+        if result_file.name in exclude_files:
             continue
 
         model_name = result_file.stem.replace('_results', '')
