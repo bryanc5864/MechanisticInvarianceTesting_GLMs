@@ -47,8 +47,8 @@ class Evo2Wrapper(BaseGLM):
     def compute_log_likelihood(self, sequence: str) -> float:
         """Compute log-likelihood for a DNA sequence.
 
-        Uses autoregressive factorization:
-        log P(x) = sum_i log P(x_i | x_<i)
+        Uses Evo2's built-in score_sequences method with sum reduction
+        for autoregressive log-likelihood scoring.
 
         Args:
             sequence: DNA sequence (A, C, G, T)
@@ -59,34 +59,11 @@ class Evo2Wrapper(BaseGLM):
         if not self._loaded:
             self.load_model()
 
-        with torch.no_grad():
-            # Evo2 expects uppercase DNA sequence
-            sequence = sequence.upper()
-
-            # Get logits from the model
-            # Evo2 returns logits of shape (batch, seq_len, vocab_size)
-            outputs = self.model(sequence)
-
-            if hasattr(outputs, 'logits'):
-                logits = outputs.logits
-            else:
-                logits = outputs
-
-            # Convert sequence to token IDs
-            # Evo2 uses single nucleotide tokens: A=0, C=1, G=2, T=3 (typically)
-            token_map = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
-            tokens = torch.tensor([token_map.get(c, 0) for c in sequence])
-            tokens = tokens.to(self.device)
-
-            # Compute log probabilities
-            # logits[i] predicts token at position i+1
-            log_probs = torch.log_softmax(logits[0, :-1, :4], dim=-1)  # Only DNA tokens
-
-            # Sum log P(x_i | x_<i) for i > 0
-            target_tokens = tokens[1:]  # Shift targets
-            ll = log_probs.gather(1, target_tokens.unsqueeze(1)).sum().item()
-
-            return ll
+        sequence = sequence.upper()
+        scores = self.model.score_sequences(
+            [sequence], batch_size=1, reduce_method='sum'
+        )
+        return scores[0]
 
     def compute_batch_log_likelihoods(
         self,
@@ -97,14 +74,22 @@ class Evo2Wrapper(BaseGLM):
 
         Args:
             sequences: List of DNA sequences
-            batch_size: Batch size (Evo2 processes one at a time for variable lengths)
+            batch_size: Batch size for processing
 
         Returns:
             List of log-likelihood scores
         """
+        if not self._loaded:
+            self.load_model()
+
+        seqs = [s.upper() for s in sequences]
         results = []
-        for seq in tqdm(sequences, desc=f"Evo2 inference"):
-            results.append(self.compute_log_likelihood(seq))
+        for i in tqdm(range(0, len(seqs), batch_size), desc="Evo2 inference"):
+            batch = seqs[i:i + batch_size]
+            scores = self.model.score_sequences(
+                batch, batch_size=len(batch), reduce_method='sum'
+            )
+            results.extend(scores)
         return results
 
 

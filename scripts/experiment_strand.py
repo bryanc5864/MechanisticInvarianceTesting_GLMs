@@ -3,11 +3,15 @@
 Test if model knows promoter elements are strand-specific.
 """
 
+import argparse
 import json
 import random
+import sys
 import numpy as np
 import torch
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 random.seed(42)
 np.random.seed(42)
@@ -91,10 +95,17 @@ def generate_scrambled_motifs():
 
 
 def main():
-    from transformers import AutoModelForCausalLM, AutoTokenizer
     import os
+    from scripts.run_inference import get_model_wrapper
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+    parser = argparse.ArgumentParser(description="Strand Orientation Experiment")
+    parser.add_argument("--model", type=str, default="hyenadna", help="Model name (e.g., hyenadna, evo2_1b, caduceus)")
+    parser.add_argument("--gpu", type=int, default=0, help="GPU device ID")
+    args = parser.parse_args()
+
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
+    model_name = args.model
+    device = "cuda" if args.gpu >= 0 else "cpu"
 
     n_per_condition = 50
 
@@ -105,29 +116,13 @@ def main():
         'scrambled': [generate_scrambled_motifs() for _ in range(n_per_condition)],
     }
 
-    # Load HyenaDNA
-    print("Loading HyenaDNA...")
-    tokenizer = AutoTokenizer.from_pretrained(
-        "LongSafari/hyenadna-medium-160k-seqlen-hf",
-        trust_remote_code=True
-    )
-    model = AutoModelForCausalLM.from_pretrained(
-        "LongSafari/hyenadna-medium-160k-seqlen-hf",
-        trust_remote_code=True
-    )
-    model.to('cuda')
-    model.eval()
+    # Load model
+    print(f"Loading {model_name}...")
+    model = get_model_wrapper(model_name, device)
+    model.load_model()
 
     def compute_ll(sequence):
-        with torch.no_grad():
-            inputs = tokenizer(sequence, return_tensors="pt", add_special_tokens=False)
-            input_ids = inputs["input_ids"].to('cuda')
-            outputs = model(input_ids)
-            logits = outputs.logits
-            log_probs = torch.log_softmax(logits[0, :-1, :], dim=-1)
-            target_ids = input_ids[0, 1:]
-            ll = log_probs.gather(1, target_ids.unsqueeze(1)).sum().item()
-        return ll
+        return model.compute_log_likelihood(sequence)
 
     # Compute LL for all sequences
     print("Computing log-likelihoods...")
@@ -194,9 +189,12 @@ def main():
         sig = "***" if p_val < 0.001 else "**" if p_val < 0.01 else "*" if p_val < 0.05 else ""
         print(f"   Forward vs {condition}: t={t_stat:+.2f}, p={p_val:.4f} {sig}")
 
+    # Unload model
+    model.unload_model()
+
     # Save results
-    output_path = Path('data/results/strand_results.json')
-    save_results = {k: {'mean': v['mean'], 'std': v['std']} for k, v in results.items()}
+    output_path = Path(f'data/results/strand_{model_name}_results.json')
+    save_results = {k: {'mean': float(v['mean']), 'std': float(v['std'])} for k, v in results.items()}
     with open(output_path, 'w') as f:
         json.dump(save_results, f, indent=2)
 

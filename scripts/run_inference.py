@@ -219,7 +219,7 @@ def main():
             with open(result_path, 'w') as f:
                 json.dump({k: [float(x) for x in v] for k, v in results.items()}, f, indent=2)
 
-            all_results[model_name] = results
+            all_results[model_name] = {k: [float(x) for x in v] for k, v in results.items()}
             print(f"  Results saved to: {result_path}")
 
             # Remove checkpoint

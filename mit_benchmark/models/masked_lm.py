@@ -336,6 +336,8 @@ class CaduceusWrapper(BaseGLM):
         """Compute pseudo-log-likelihood.
 
         Caduceus is bidirectional, so PLL is appropriate.
+        Caduceus (Mamba-based) does not use attention_mask, so we
+        compute PLL directly without passing it.
 
         Args:
             sequence: DNA sequence
@@ -346,12 +348,53 @@ class CaduceusWrapper(BaseGLM):
         if not self._loaded:
             self.load_model()
 
-        return compute_pseudo_log_likelihood(
-            self.model,
-            self.tokenizer,
-            sequence.upper(),
-            self.device,
+        sequence = sequence.upper()
+
+        # Tokenize
+        inputs = self.tokenizer(
+            sequence,
+            return_tensors="pt",
+            add_special_tokens=True,
         )
+        input_ids = inputs["input_ids"].to(self.device)
+
+        # Get mask token ID
+        mask_token_id = self.tokenizer.mask_token_id
+        if mask_token_id is None:
+            if hasattr(self.tokenizer, 'mask_token'):
+                mask_token_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.mask_token)
+            else:
+                raise ValueError("Could not find mask token ID")
+
+        # Get special token positions to skip
+        special_ids = set()
+        if self.tokenizer.cls_token_id is not None:
+            special_ids.add(self.tokenizer.cls_token_id)
+        if self.tokenizer.sep_token_id is not None:
+            special_ids.add(self.tokenizer.sep_token_id)
+        if self.tokenizer.pad_token_id is not None:
+            special_ids.add(self.tokenizer.pad_token_id)
+
+        total_ll = 0.0
+        seq_len = input_ids.shape[1]
+
+        for pos in range(seq_len):
+            original_token = input_ids[0, pos].item()
+
+            if original_token in special_ids:
+                continue
+
+            masked_ids = input_ids.clone()
+            masked_ids[0, pos] = mask_token_id
+
+            with torch.no_grad():
+                outputs = self.model(masked_ids)
+                logits = outputs.logits
+
+            log_probs = torch.log_softmax(logits[0, pos, :], dim=-1)
+            total_ll += log_probs[original_token].item()
+
+        return total_ll
 
     def compute_batch_log_likelihoods(
         self,

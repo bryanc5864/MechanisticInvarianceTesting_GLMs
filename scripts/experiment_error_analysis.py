@@ -93,19 +93,40 @@ def main():
     results_dir = PROJECT_ROOT / "data/results"
     model_scores = {}
 
+    # Patterns to exclude from model results
+    exclude_patterns = [
+        'all_results', 'metrics', 'biophysical_comparison',
+        'at_titration', 'positional_sweep', 'spacing_', 'strand_',
+        'dinucleotide_control', 'negative_mes', 'error_analysis',
+        'mpra_library',
+    ]
+
     for result_file in results_dir.glob("*_results.json"):
-        if result_file.name in ['all_results.json', 'metrics.json',
-                                 'biophysical_comparison.json',
-                                 'at_titration_results.json',
-                                 'positional_sweep_results.json',
-                                 'spacing_results.json', 'strand_results.json',
-                                 'dinucleotide_control_sequences.json',
-                                 'negative_mes_results.json',
-                                 'error_analysis_results.json']:
+        skip = False
+        for pattern in exclude_patterns:
+            if pattern in result_file.name:
+                skip = True
+                break
+        if skip:
             continue
         model_name = result_file.stem.replace('_results', '')
         with open(result_file) as f:
-            model_scores[model_name] = json.load(f)
+            raw_scores = json.load(f)
+
+        # Handle both formats:
+        # Old format: per-sequence keys like {"A_000": -5.3, "A_001": -5.1, ...}
+        # New format: per-class arrays like {"A": [-5.3, -5.1, ...], "B": [...], ...}
+        first_key = next(iter(raw_scores))
+        if isinstance(raw_scores[first_key], list):
+            # New format: convert to per-sequence keys
+            converted = {}
+            for class_label, values in raw_scores.items():
+                for idx, val in enumerate(values):
+                    seq_id = f"{class_label}_{idx:03d}"
+                    converted[seq_id] = val
+            model_scores[model_name] = converted
+        else:
+            model_scores[model_name] = raw_scores
 
     if not model_scores:
         print("No model results found. Run inference first.")

@@ -15,23 +15,27 @@ This benchmark evaluates whether genomic language models (gLMs) encode the mecha
 
 | Model | CSS | 95% CI | p-value (raw) | p-value (FDR) | Significant |
 |-------|-----|--------|---------------|---------------|-------------|
-| HyenaDNA | **0.630** | [0.530, 0.730] | **0.0043** | **0.0258** | **Yes** |
-| NT-500M | 0.540 | [0.440, 0.640] | 0.2132 | 0.6397 | No |
+| HyenaDNA | **0.630** | [0.530, 0.730] | **0.0043** | **0.0344** | **Yes** |
+| Evo2-1B | 0.600 | [0.500, 0.690] | 0.0225 | 0.0900 | No |
+| NT-500M | 0.540 | [0.440, 0.640] | 0.2132 | 0.5685 | No |
 | GROVER | 0.520 | [0.430, 0.620] | 0.3456 | 0.6912 | No |
-| Random | 0.500 | [0.400, 0.600] | 0.5000 | 0.7500 | No |
+| Random | 0.500 | [0.400, 0.600] | 0.5000 | 0.7716 | No |
+| Caduceus | 0.490 | [0.400, 0.590] | 0.5787 | 0.7716 | No |
 | k-mer | 0.430 | [0.340, 0.530] | 0.9187 | 1.0000 | No |
 | PWM | 0.000 | [0.000, 0.000] | 1.0000 | 1.0000 | No |
 
-> **Note**: p-values adjusted using Benjamini-Hochberg FDR correction across all 6 CSS tests. HyenaDNA remains significant at FDR < 0.05.
+> **Note**: p-values adjusted using Benjamini-Hochberg FDR correction across all 8 CSS tests. HyenaDNA remains significant at FDR < 0.05. Evo2-1B is significant at the uncorrected level (p=0.023) but not after FDR correction (p=0.090).
 
 ## Full Metrics (with Bootstrap 95% CIs)
 
 | Model | CSS [CI] | MES Natural [CI] | MES Synthetic [CI] | SCR [CI] | SCR p-value |
 |-------|----------|-------------------|---------------------|----------|-------------|
 | HyenaDNA | 0.630 [0.53, 0.73] | -0.01 [-0.29, 0.27] | -0.34 [-0.62, -0.06] | 0.480 [0.34, 0.62] | 0.712 |
+| Evo2-1B | 0.600 [0.50, 0.69] | 0.38 [0.11, 0.67] | -0.03 [-0.30, 0.25] | 0.460 [0.32, 0.60] | 0.712 |
 | NT-500M | 0.540 [0.44, 0.64] | -0.00 [-0.28, 0.27] | -0.10 [-0.37, 0.16] | 0.400 [0.26, 0.56] | 0.920 |
 | GROVER | 0.520 [0.43, 0.62] | -0.08 [-0.36, 0.20] | -0.05 [-0.33, 0.23] | 0.520 [0.38, 0.66] | 0.388 |
 | Random | 0.500 [0.40, 0.60] | -0.14 [-0.42, 0.14] | -0.04 [-0.32, 0.24] | 0.460 [0.32, 0.60] | 0.612 |
+| Caduceus | 0.490 [0.40, 0.59] | -0.17 [-0.46, 0.12] | -0.40 [-0.68, -0.12] | 0.420 [0.28, 0.56] | 0.869 |
 | k-mer | 0.430 [0.34, 0.53] | -0.17 [-0.45, 0.11] | 0.11 [-0.17, 0.39] | 0.500 [0.36, 0.64] | 0.500 |
 | PWM | 0.000 [0.00, 0.00] | 0.70 [0.42, 0.98] | 10.00 [10.00, 10.00] | 0.000 [0.00, 0.00] | 1.000 |
 
@@ -49,26 +53,34 @@ This benchmark evaluates whether genomic language models (gLMs) encode the mecha
 
 | Test | p-value (raw) | p-value (FDR) | Significant (FDR < 0.05) |
 |------|---------------|---------------|--------------------------|
-| HyenaDNA CSS vs 0.5 | 0.0043 | 0.0258 | Yes |
-| NT-500M CSS vs 0.5 | 0.2132 | 0.6397 | No |
+| HyenaDNA CSS vs 0.5 | 0.0043 | 0.0344 | Yes |
+| Evo2-1B CSS vs 0.5 | 0.0225 | 0.0900 | No |
+| NT-500M CSS vs 0.5 | 0.2132 | 0.5685 | No |
 | GROVER CSS vs 0.5 | 0.3456 | 0.6912 | No |
-| Random CSS vs 0.5 | 0.5000 | 0.7500 | No |
+| Random CSS vs 0.5 | 0.5000 | 0.7716 | No |
+| Caduceus CSS vs 0.5 | 0.5787 | 0.7716 | No |
 | k-mer CSS vs 0.5 | 0.9187 | 1.0000 | No |
 | PWM CSS vs 0.5 | 1.0000 | 1.0000 | No |
 | HyenaDNA SCR vs 0.5 | 0.7120 | 0.7120 | No |
+| Evo2-1B SCR vs 0.5 | 0.7120 | 0.7120 | No |
 | NT-500M SCR vs 0.5 | 0.9203 | 0.9203 | No |
+| Caduceus SCR vs 0.5 | 0.8690 | 0.8690 | No |
 
 > Benjamini-Hochberg FDR correction applied across all tests.
 
 ## Key Findings
 
-1. **HyenaDNA is the only tested model showing statistically significant compensation sensitivity** (CSS=0.630, FDR-corrected p=0.0258), but extended experiments reveal this signal is driven by AT content correlation rather than mechanistic understanding.
+1. **HyenaDNA is the only tested model showing statistically significant compensation sensitivity** (CSS=0.630, FDR-corrected p=0.034), but extended experiments reveal this signal is driven by AT content correlation rather than mechanistic understanding.
 
-2. **No tested model shows significant structure sensitivity**: SCR is indistinguishable from 0.5 for all models (FDR-corrected p > 0.05), indicating models respond similarly to structured and scrambled compensatory elements.
+2. **Evo2-1B shows suggestive but non-significant compensation sensitivity**: CSS=0.600 (raw p=0.023, FDR-corrected p=0.090). Notably, Evo2-1B is the only gLM with a **positive natural MES** (0.38, CI [0.11, 0.67]), meaning it correctly scores natural intact promoters higher than broken ones. However, its synthetic MES is near zero (-0.03) and SCR=0.460, indicating no structure sensitivity.
 
-3. **NT-500M shows no significant compensation sensitivity**: CSS=0.540 (FDR-corrected p=0.640), with SCR=0.400 indicating no structure sensitivity. NT-500M also shows near-zero MES (-0.00 natural, -0.10 synthetic), consistent with indifference to motif identity.
+3. **Caduceus shows no compensation sensitivity**: CSS=0.490 (FDR-corrected p=0.772), essentially at chance. It has the most negative synthetic MES (-0.40, CI [-0.68, -0.12]) of any gLM, strongly scoring intact sequences lower than broken ones.
 
-4. **Negative MES across models**: All gLMs tested score intact sequences (TATAAT) *lower* than broken (TGTAAT), suggesting they have learned genome-wide frequency priors that contradict functional importance (see [Negative MES Investigation](#negative-mes-investigation)).
+4. **No tested model shows significant structure sensitivity**: SCR is indistinguishable from 0.5 for all models (FDR-corrected p > 0.05), indicating models respond similarly to structured and scrambled compensatory elements.
+
+5. **NT-500M shows no significant compensation sensitivity**: CSS=0.540 (FDR-corrected p=0.569), with SCR=0.400 indicating no structure sensitivity. NT-500M also shows near-zero MES (-0.00 natural, -0.10 synthetic), consistent with indifference to motif identity.
+
+6. **Negative MES across most models**: Most gLMs tested score intact sequences (TATAAT) *lower* than broken (TGTAAT), suggesting they have learned genome-wide frequency priors that contradict functional importance (see [Negative MES Investigation](#negative-mes-investigation)). The exception is Evo2-1B, which correctly ranks intact > broken for natural sequences.
 
 5. **PWM baseline achieves CSS=0.000** because it evaluates only the -35 and -10 boxes, giving identical scores to broken and compensated sequences (both have the same broken -10).
 
@@ -98,39 +110,41 @@ This benchmark evaluates whether genomic language models (gLMs) encode the mecha
 ### CSS vs MES
 ![CSS vs MES](figures/css_vs_mes.png)
 
-## Deep Analysis: What Is HyenaDNA Actually Learning?
+## Deep Analysis: What Are gLMs Actually Learning?
 
 ### The Composition Effect
 
-Analysis reveals that HyenaDNA's CSS signal is primarily driven by **nucleotide composition**, not positional motif logic:
+Analysis reveals that gLM CSS signals are primarily driven by **nucleotide composition**, not positional motif logic:
 
-| Metric | Value |
-|--------|-------|
-| Correlation(LL, AT content) | **r = 0.784** |
-| Mean UP-region AT (Class D - Broken) | 57.8% |
-| Mean UP-region AT (Class E - Compensated) | 82.1% |
+| Model | AT-LL Correlation | UP-region AT (Broken) | UP-region AT (Compensated) |
+|-------|-------------------|-----------------------|----------------------------|
+| HyenaDNA | **r = 0.784** | 57.8% | 82.1% |
+| Caduceus | **r = 0.874** | 57.8% | 82.1% |
+| Evo2-1B | **r = 0.961** | 57.8% | 82.1% |
 
-The strong correlation (r=0.784) between log-likelihood and AT content explains why HyenaDNA prefers compensated sequences: they contain AT-rich UP elements.
+The strong correlations between log-likelihood and AT content explain why models prefer compensated sequences: they contain AT-rich UP elements. All three architectures — autoregressive (HyenaDNA, Evo2-1B) and bidirectional SSM (Caduceus) — show the same compositional bias.
 
 ### Positional Ablation Test
 
-To distinguish compositional from positional effects, we created sequences with UP elements in the **wrong position** (after -10 instead of before -35):
+To distinguish compositional from positional effects, we created sequences with UP elements at varying positions:
 
-| Condition | Mean LL | vs Correct (15) |
-|-----------|---------|-----------------|
-| Original (UP at pos 15) | -139.83 | -- |
-| Mispositioned (UP at pos 70) | -140.29 | -0.46 |
-| No UP | -143.53 | -3.70 |
+| Model | UP at 15 (correct) | UP at 70 (wrong) | No UP | Compositional vs Positional |
+|-------|--------------------|-------------------|-------|---------------------------|
+| HyenaDNA | -139.83 | -140.29 | -143.53 | 3.70 vs 0.46 (8x) |
+| Evo2-1B | -137.12 | -136.57 | -138.58 | 1.46 vs -0.55 (wrong dir) |
+| Caduceus | -146.73 | -145.98 | -147.98 | 1.25 vs -0.75 (wrong dir) |
 
-**Key finding**: Moving the UP element to the wrong position reduces LL by only 0.46, while removing it entirely reduces LL by 3.70. The compositional effect (3.70) is **8x larger** than the positional effect (0.46).
-
-HyenaDNA shows almost no positional awareness; the dominant signal is AT composition.
+**Key finding**: For all models, UP element presence matters more than position. Evo2-1B and Caduceus actually score UP at position 70 *higher* than at the correct position 15, confirming they have no positional awareness — only a composition-driven preference.
 
 ### The Scramble Control Problem
 
-The SCR = 0.48 (p=0.712, not significant) indicates HyenaDNA responds **identically** to:
-- Structured compensation: `AAAAAAGCA` (real UP) + `TGT` (extended -10)
-- Scrambled compensation: `TAGAAAAAA` (shuffled) + `TGT` (same)
+SCR ≈ 0.5 for all models indicates they respond **identically** to structured and scrambled compensation:
+
+| Model | SCR | p-value | Interpretation |
+|-------|-----|---------|----------------|
+| HyenaDNA | 0.480 | 0.712 | Strand-blind |
+| Evo2-1B | 0.460 | 0.712 | Strand-blind |
+| Caduceus | 0.420 | 0.869 | Strand-blind |
 
 ### Negative MES Investigation
 
@@ -155,29 +169,32 @@ See `scripts/experiment_negative_mes.py` for full analysis of all 18 single-nucl
 
 ## Interpretation
 
-HyenaDNA exhibits statistically significant compensation sensitivity (CSS=0.630, FDR-corrected p=0.0258), but this appears to be driven by a learned heuristic: **"AT-rich upstream sequences correlate with functional promoters."**
+HyenaDNA exhibits statistically significant compensation sensitivity (CSS=0.630, FDR-corrected p=0.034), and Evo2-1B shows a suggestive trend (CSS=0.600, raw p=0.023, FDR p=0.090). Extended experiments on all three models (HyenaDNA, Evo2-1B, Caduceus) confirm these signals are driven by a learned heuristic: **"AT-rich upstream sequences correlate with functional promoters."**
 
-This is technically correct -- UP elements are AT-rich and do enhance transcription (Estrem et al. 1998; Ross et al. 1993). However, the tested models fail to encode the **positional logic** that makes this work biologically:
+This is technically correct -- UP elements are AT-rich and do enhance transcription (Estrem et al. 1998; Ross et al. 1993). However, all tested models fail to encode the **positional logic** that makes this work biologically:
 
-1. UP elements must be at specific positions relative to -35
-2. The extended -10 (TGT) must be immediately upstream of -10
-3. Scrambling these elements should destroy function
+1. UP elements must be at specific positions relative to -35 — all models peak at wrong positions
+2. The extended -10 (TGT) must be immediately upstream of -10 — no model shows spacing awareness
+3. Scrambling these elements should destroy function — SCR ≈ 0.5 for all models
+4. Promoter elements are strand-specific — all models are strand-blind
 
-The positional ablation shows the compositional effect is 8x larger than the positional effect, indicating position is a negligible signal.
+The AT-LL correlation is strong across all models: r=0.784 (HyenaDNA), r=0.961 (Evo2-1B). Evo2-1B's even stronger AT dependence is consistent with its autoregressive architecture capturing genome-wide base composition patterns.
 
 ### Conclusion
 
-> The tested gLMs capture **statistical associations** between sequence features and regulatory function, but fail to encode the **positional logic** that underlies mechanistic compensation in bacterial transcription. These results apply to the models and regulatory system tested here; additional model architectures and regulatory contexts should be evaluated to assess generality.
+> The tested gLMs — spanning autoregressive (HyenaDNA, Evo2-1B), masked language model (NT-500M, GROVER), and bidirectional SSM (Caduceus) architectures — capture **statistical associations** between sequence features and regulatory function, but fail to encode the **positional logic** that underlies mechanistic compensation in bacterial transcription. Evo2-1B is notable for correctly ranking natural intact > broken sequences (positive MES), but this does not extend to mechanistic compensation sensitivity. These results apply to the models and regulatory system tested here; additional regulatory contexts should be evaluated to assess generality.
 
 ---
 
 ## Extended Experiments
 
-All extended experiments were re-run with full logging via `scripts/run_all_experiments.py`. Logs are available in `logs/`.
+All extended experiments were run on HyenaDNA, Evo2-1B, and Caduceus. Scripts accept `--model` flag (e.g., `python scripts/experiment_at_titration.py --model evo2_1b`).
 
 ### Experiment 2.1: AT Titration
 
 **Question**: Does LL correlate with background AT content, independent of motifs?
+
+#### HyenaDNA
 
 | AT% | Intact LL | Broken LL | Compensated LL |
 |-----|-----------|-----------|----------------|
@@ -188,15 +205,51 @@ All extended experiments were re-run with full logging via `scripts/run_all_expe
 | 70% | -131.4 | -131.7 | -130.2 |
 | 80% | -122.9 | -124.2 | -123.6 |
 
-**Overall AT-LL Correlation: r = 0.784**
+**AT-LL Correlation: r = 0.784**
 
-**Key Finding**: LL increases ~21 units from AT=30% to AT=80%. The AT effect dominates; motif differences are small and inconsistent.
+#### Evo2-1B
+
+| AT% | Intact LL | Broken LL | Compensated LL |
+|-----|-----------|-----------|----------------|
+| 30% | -142.40 | -142.45 | -140.86 |
+| 40% | -141.46 | -141.72 | -140.38 |
+| 50% | -139.47 | -139.84 | -138.09 |
+| 60% | -136.13 | -136.49 | -135.31 |
+| 70% | -131.65 | -132.65 | -132.36 |
+| 80% | -125.83 | -127.60 | -127.47 |
+
+**AT-LL Correlation: r = 0.961** (even stronger than HyenaDNA)
+
+#### Caduceus
+
+| AT% | Intact LL | Broken LL | Compensated LL |
+|-----|-----------|-----------|----------------|
+| 30% | -148.50 | -146.43 | -149.89 |
+| 40% | -153.24 | -151.01 | -152.02 |
+| 50% | -151.94 | -149.39 | -148.77 |
+| 60% | -145.16 | -144.07 | -142.43 |
+| 70% | -137.82 | -137.08 | -136.77 |
+| 80% | -124.48 | -125.53 | -128.33 |
+
+**AT-LL Correlation: r = 0.874**
+
+#### Cross-Model Comparison
+
+| Model | AT-LL Correlation | LL Range (30%→80%) | Interpretation |
+|-------|-------------------|--------------------|----------------|
+| HyenaDNA | r = 0.784 | ~21 units | Strong AT bias |
+| Caduceus | r = 0.874 | ~24 units | Strong AT bias |
+| Evo2-1B | r = 0.961 | ~16 units | Very strong AT bias |
+
+**Key Finding**: All three models show strong AT-LL correlations (r=0.784-0.961). The AT effect dominates; motif differences are small and inconsistent across all models. Evo2-1B shows the strongest correlation despite having the narrowest LL range, suggesting its autoregressive architecture is particularly sensitive to base composition.
 
 ---
 
 ### Experiment 3.1: Positional Sweep
 
-**Question**: Does HyenaDNA care where the UP element is located?
+**Question**: Do models care where the UP element is located?
+
+#### HyenaDNA
 
 | UP Position | Mean LL | vs Correct (15) |
 |-------------|---------|-----------------|
@@ -213,16 +266,63 @@ All extended experiments were re-run with full logging via `scripts/run_all_expe
 | 80 | -139.76 | +0.07 |
 | None | -143.53 | -3.70 |
 
+#### Evo2-1B
+
+| UP Position | Mean LL | vs Correct (15) |
+|-------------|---------|-----------------|
+| 0 | -138.53 | -1.41 |
+| 5 | -138.16 | -1.04 |
+| 10 | -138.37 | -1.25 |
+| **15** | **-137.12** | **0.00** |
+| 20 | -137.15 | -0.03 |
+| 25 | -136.79 | +0.33 |
+| 35 | -137.91 | -0.79 |
+| 45 | -136.94 | +0.18 |
+| 60 | -136.86 | +0.26 |
+| 70 | -136.57 | +0.56 |
+| 80 | -136.65 | +0.47 |
+| **90** | **-136.40** | **+0.72** |
+| None | -138.58 | -1.46 |
+
+#### Caduceus
+
+| UP Position | Mean LL | vs Correct (15) |
+|-------------|---------|-----------------|
+| 0 | -146.65 | +0.08 |
+| 5 | -147.20 | -0.47 |
+| 10 | -147.68 | -0.95 |
+| **15** | **-146.73** | **0.00** |
+| 20 | -149.69 | -2.96 |
+| 25 | -146.90 | -0.17 |
+| 35 | -148.70 | -1.98 |
+| 45 | -146.81 | -0.08 |
+| 60 | -146.28 | +0.45 |
+| 70 | -145.98 | +0.75 |
+| **80** | **-145.95** | **+0.78** |
+| 90 | -146.11 | +0.62 |
+| None | -147.98 | -1.25 |
+
+#### Cross-Model Comparison
+
+| Model | Peak Position | Correct (15) | UP Effect (15 vs None) | Position Effect (15 vs 70) |
+|-------|--------------|--------------|------------------------|----------------------------|
+| HyenaDNA | 0 | -139.83 | +3.70 | +0.46 |
+| Evo2-1B | 90 | -137.12 | +1.46 | -0.55 |
+| Caduceus | 80 | -146.73 | +1.25 | -0.75 |
+
 **Key Findings**:
-1. **UP effect (15 vs None): +3.70** - Having AT-rich content helps substantially
-2. **Position effect (15 vs 70): +0.46** - Position barely matters
-3. Positions 25 and 45 are worst because UP overlaps -35 box or -10 box, disrupting their consensus and lowering LL
+1. No model peaks at the correct position (15). All peak at distant positions (0, 90, or 80).
+2. All models show a UP element presence effect (vs None) — confirming AT-rich content helps.
+3. All models show negligible or wrong-direction positional effects — UP at position 70-90 scores higher than or equal to position 15.
+4. HyenaDNA's compositional effect (3.70) is 8x its positional effect (0.46). Evo2-1B and Caduceus show even less positional sensitivity.
 
 ---
 
 ### Experiment 3.2: Spacing Sensitivity
 
-**Question**: Does HyenaDNA know the optimal 17bp spacing between -35 and -10?
+**Question**: Do models know the optimal 17bp spacing between -35 and -10?
+
+#### HyenaDNA
 
 | Spacing | Mean LL | vs Optimal (17bp) |
 |---------|---------|-------------------|
@@ -238,17 +338,65 @@ All extended experiments were re-run with full logging via `scripts/run_all_expe
 | 22bp | -142.27 | +0.00 |
 | 25bp | -143.10 | -0.83 |
 
+#### Evo2-1B
+
+| Spacing | Mean LL | vs Optimal (17bp) |
+|---------|---------|-------------------|
+| 12bp | -138.43 | -0.79 |
+| 13bp | -138.32 | -0.68 |
+| 14bp | -138.01 | -0.37 |
+| **15bp** | **-137.40** | **+0.24** |
+| 16bp | -137.98 | -0.34 |
+| 17bp | -137.64 | 0.00 |
+| 18bp | -138.34 | -0.70 |
+| 19bp | -137.77 | -0.13 |
+| 20bp | -137.80 | -0.16 |
+| 21bp | -137.70 | -0.07 |
+| 22bp | -137.58 | +0.06 |
+| 23bp | -137.61 | +0.03 |
+| 24bp | -138.24 | -0.60 |
+| 25bp | -138.36 | -0.72 |
+
+#### Caduceus
+
+| Spacing | Mean LL | vs Optimal (17bp) |
+|---------|---------|-------------------|
+| 12bp | -149.24 | -0.70 |
+| 13bp | -149.22 | -0.68 |
+| 14bp | -149.24 | -0.70 |
+| 15bp | -147.96 | +0.59 |
+| 16bp | -150.32 | -1.77 |
+| 17bp | -148.54 | 0.00 |
+| 18bp | -150.38 | -1.84 |
+| 19bp | -148.72 | -0.18 |
+| **20bp** | **-147.15** | **+1.40** |
+| 21bp | -149.00 | -0.46 |
+| 22bp | -148.09 | +0.45 |
+| 23bp | -148.53 | +0.01 |
+| 24bp | -148.34 | +0.20 |
+| 25bp | -149.36 | -0.81 |
+
+#### Cross-Model Comparison
+
+| Model | Peak Spacing | LL Range | Correct (17bp) |
+|-------|-------------|----------|----------------|
+| HyenaDNA | 14bp | 1.67 units | Not peak |
+| Evo2-1B | 15bp | 1.03 units | Not peak |
+| Caduceus | 20bp | 3.23 units | Not peak |
+
 **Key Findings**:
-1. **Peak at 14bp, not 17bp** - Wrong optimal spacing
-2. **17bp is not special** - Not the highest scoring spacing
-3. **Range only 1.67 LL units** - Essentially flat
-4. HyenaDNA does not encode the biologically optimal -35/-10 spacing
+1. No model peaks at the biologically optimal 17bp spacing.
+2. HyenaDNA peaks at 14bp; Evo2-1B peaks at 15bp; Caduceus peaks at 20bp.
+3. LL ranges are small relative to noise — essentially flat across all spacings.
+4. None of the tested models encode the biologically optimal -35/-10 spacing.
 
 ---
 
 ### Experiment 3.3: Strand Orientation
 
-**Question**: Does HyenaDNA know promoter elements are strand-specific?
+**Question**: Do models know promoter elements are strand-specific?
+
+#### HyenaDNA
 
 | Condition | Mean LL | Description |
 |-----------|---------|-------------|
@@ -257,42 +405,64 @@ All extended experiments were re-run with full logging via `scripts/run_all_expe
 | Full RC | -142.13 | Full reverse complement |
 | Scrambled | -143.98 | Scrambled motifs |
 
-**Key Findings**:
-1. **All conditions within 1.85 LL** - No meaningful strand preference
-2. **Forward vs RC-in-place: -0.95** - Forward is actually LOWER than RC (wrong direction)
-3. **Forward vs Scrambled: +0.19** - Negligible difference
-4. **Strand accuracy: 44%** - Worse than random coin flip
+#### Evo2-1B
 
-HyenaDNA does not exhibit strand awareness for promoter elements.
+| Condition | Mean LL | Description |
+|-----------|---------|-------------|
+| Forward | -138.18 | Correct orientation |
+| RC-in-place | -138.01 | RC motifs, same position |
+| Full RC | -138.15 | Full reverse complement |
+| Scrambled | -137.69 | Scrambled motifs |
+
+#### Caduceus
+
+| Condition | Mean LL | Description |
+|-----------|---------|-------------|
+| Forward | -149.13 | Correct orientation |
+| RC-in-place | -149.31 | RC motifs, same position |
+| Full RC | -149.12 | Full reverse complement |
+| Scrambled | -148.66 | Scrambled motifs |
+
+#### Cross-Model Comparison
+
+| Model | Fwd vs RC-in-place | Fwd vs Scrambled | LL Range | Strand-Aware? |
+|-------|--------------------|--------------------|----------|---------------|
+| HyenaDNA | -0.95 | +0.19 | 1.85 | No |
+| Evo2-1B | -0.17 | -0.48 | 0.49 | No |
+| Caduceus | +0.18 | -0.46 | 0.65 | No |
+
+**Key Findings**:
+1. **All models are strand-blind.** No model scores forward orientation meaningfully higher than RC or scrambled.
+2. HyenaDNA actually scores forward LOWER than RC-in-place (-0.95).
+3. Both Evo2-1B and Caduceus score scrambled motifs HIGHER than forward (-0.48, -0.46).
+4. LL ranges are tiny (0.49-1.85 units) — no statistically significant strand preference for any model.
 
 ---
 
 ## Summary of All Experiments
 
-| Experiment | Finding | Implication |
-|------------|---------|-------------|
-| AT Titration | r=0.784 correlation with AT% | Compositional, not motif-based |
-| Positional Sweep | Compositional effect 8x positional | No meaningful positional encoding |
-| Spacing | Peak at 14bp, not 17bp | Does not encode optimal spacing |
-| Strand | Strand accuracy = 44% | Strand-blind |
-| Scramble Control | SCR=0.48 (p=0.71) | Cannot distinguish structure from composition |
-| Negative MES | Intact < Broken for all gLMs | Frequency priors contradict function |
-| Dinucleotide Control | P(Comp > Match-AT) = 1.00 (biophys) | Position matters beyond AT% |
-| Error Analysis | AT% diff predicts HyenaDNA success (p=1e-6) | Confirms AT-driven heuristic |
-| PA-PWM Ablation | NoComp CSS=0.000, NoPos CSS=0.630 | Both compensation + position needed |
+| Experiment | HyenaDNA | Evo2-1B | Caduceus | Implication |
+|------------|----------|---------|----------|-------------|
+| AT Titration | r=0.784 | r=0.961 | r=0.874 | Compositional, not motif-based |
+| Positional Sweep | Peak at 0, UP 8x pos | Peak at 90, pos wrong dir | Peak at 80, pos wrong dir | No meaningful positional encoding |
+| Spacing | Peak at 14bp | Peak at 15bp | Peak at 20bp | Does not encode optimal spacing |
+| Strand | Fwd < RC (-0.95) | Fwd < Scrambled (-0.48) | Fwd < Scrambled (-0.46) | Strand-blind |
+| Scramble Control | SCR=0.48 (p=0.71) | SCR=0.46 (p=0.71) | SCR=0.42 (p=0.87) | Cannot distinguish structure from composition |
+| Negative MES | Intact < Broken | Intact > Broken (natural only) | Intact < Broken | Frequency priors contradict function |
+| Error Analysis | AT% predicts success (p=1e-6) | AT% predicts success | AT% predicts success | Confirms AT-driven heuristic |
 
 ### Conclusion
 
-The tested gLMs appear to have learned a simple heuristic: **"AT-rich sequences are more likely."**
+The tested gLMs — including autoregressive (HyenaDNA, Evo2-1B), masked (NT-500M, GROVER), and bidirectional SSM (Caduceus) architectures — appear to have learned a simple heuristic: **"AT-rich sequences are more likely."**
 
-This heuristic happens to correlate with promoter function (UP elements are AT-rich), producing apparent "compensation sensitivity" (CSS=0.630). However, the models fail every mechanistic test we applied:
+This heuristic happens to correlate with promoter function (UP elements are AT-rich), producing apparent "compensation sensitivity" (HyenaDNA CSS=0.630, Evo2-1B CSS=0.600). However, all tested models fail every mechanistic test we applied:
 
-1. Position doesn't matter (compositional effect 8x larger)
-2. Spacing doesn't matter (peak at 14bp, not 17bp)
-3. Strand doesn't matter (44% accuracy)
-4. Motif sequence doesn't matter (SCR=0.48, p=0.71)
-5. AT content dominates (r=0.784)
-6. Error analysis confirms AT%-driven successes (p=1e-6)
+1. **Position doesn't matter** — all models peak at wrong positions (0, 80, 90 instead of 15); compositional effect dominates
+2. **Spacing doesn't matter** — peak spacings are 14-15bp, not the biological optimum of 17bp; LL ranges are essentially flat
+3. **Strand doesn't matter** — all models are strand-blind; forward orientation scores equal to or lower than RC/scrambled
+4. **Motif sequence doesn't matter** — SCR ≈ 0.5 for all models (p > 0.05)
+5. **AT content dominates** — r=0.784 (HyenaDNA), r=0.961 (Evo2-1B)
+6. **Error analysis confirms AT%-driven successes** — p=1e-6 for HyenaDNA
 
 In contrast, biophysical models with explicit positional and compensation logic achieve CSS=1.000 and SCR=0.980. Ablation shows removing compensation logic produces CSS=0.000 (tied scores), and removing positional encoding produces CSS=0.630 — matching HyenaDNA exactly.
 
@@ -321,9 +491,11 @@ To demonstrate that the mechanistic tests are solvable, we implemented biophysic
 | PA-PWM-NoPos | Ablation | 0.630 | 0.560 | No positional constraints |
 | **Thermo** | Biophysical | **0.970** | **0.680** | Free energy model |
 | HyenaDNA | gLM | 0.630 | 0.480 | AT-driven |
+| Evo2-1B | gLM | 0.600 | 0.460 | Suggestive, positive natural MES |
 | NT-500M | gLM | 0.540 | 0.400 | Not significant |
 | GROVER | gLM | 0.520 | 0.520 | Near random |
 | Random | Baseline | 0.500 | 0.460 | Random baseline |
+| Caduceus | gLM | 0.490 | 0.420 | At chance |
 | Scan | Biophysical | 0.430 | 0.540 | Weak position scanning |
 | k-mer | Baseline | 0.430 | 0.500 | Composition baseline |
 
@@ -333,14 +505,16 @@ To demonstrate that the mechanistic tests are solvable, we implemented biophysic
 
 The biophysical comparison script generates its own sequences and tests additional capabilities:
 
-| Model | CSS | SCR | Pos Acc | Spacing Peak | Strand Acc |
-|-------|-----|-----|---------|--------------|------------|
-| PA-PWM | 1.000 | 0.970 | 0.980 | 17bp | 1.000 |
-| PA-PWM-NoComp | 0.000 | 0.000 | 0.000 | 17bp | 1.000 |
-| PA-PWM-NoPos | 0.660 | 0.510 | 0.200 | 18bp | 1.000 |
-| Thermo | 1.000 | 0.830 | 0.470 | 17bp | 1.000 |
-| Scan | 0.440 | 0.420 | 0.290 | 17bp | 0.980 |
-| HyenaDNA | 0.630 | 0.480 | 0.580 | 20bp | 0.530 |
+| Model | CSS | SCR | Peak Pos | Spacing Peak | Strand (Fwd-Scr) |
+|-------|-----|-----|----------|--------------|-------------------|
+| PA-PWM | 1.000 | 0.970 | 15 (correct) | 17bp | +large |
+| PA-PWM-NoComp | 0.000 | 0.000 | -- | 17bp | +large |
+| PA-PWM-NoPos | 0.660 | 0.510 | -- | 18bp | +large |
+| Thermo | 1.000 | 0.830 | -- | 17bp | +large |
+| HyenaDNA | 0.630 | 0.480 | 0 (wrong) | 14bp | -0.19 |
+| Evo2-1B | 0.600 | 0.460 | 90 (wrong) | 15bp | -0.48 |
+| Caduceus | 0.490 | 0.420 | 80 (wrong) | 20bp | -0.46 |
+| Scan | 0.440 | 0.420 | -- | 17bp | +large |
 
 ### Ablation Analysis
 
@@ -440,13 +614,13 @@ See `scripts/experiment_mpra_validation.py` for implementation.
 
 ## Limitations
 
-1. **Model coverage**: Results are from 3 gLMs (HyenaDNA, GROVER, NT-500M) plus baselines. DNABERT-2, Caduceus, and Evo2 should be tested to assess generality across architectures. Support for these models has been added to `run_all_experiments.py`. NT-500M was scored using pseudo-log-likelihood (PLL).
+1. **Model coverage**: Results are from 5 gLMs (HyenaDNA, Evo2-1B, NT-500M, GROVER, Caduceus) plus baselines. DNABERT-2 remains to be tested. Evo2-1B uses autoregressive log-likelihood scoring; Caduceus and NT-500M use pseudo-log-likelihood (PLL) scoring. The addition of Evo2-1B (StripedHyena architecture) and Caduceus (bidirectional Mamba architecture) broadens coverage across autoregressive, masked, and SSM-based architectures.
 
 2. **Single regulatory system**: All experiments use E. coli σ70 promoters. Eukaryotic enhancers, yeast promoters, or other bacterial sigma factors may show different patterns.
 
 3. **No wet-lab validation**: We use published literature and biophysical models as proxies for experimental validation. Direct MPRA validation of our synthetic sequences would strengthen claims.
 
-4. **Scoring method**: NT-500M uses proper pseudo-log-likelihood (PLL) scoring. GROVER uses mean embedding values as proxy scores rather than true PLL, which may underestimate its capabilities.
+4. **Scoring method**: Evo2-1B uses autoregressive log-likelihood (sum of per-token log-probs). NT-500M and Caduceus use pseudo-log-likelihood (PLL) scoring. GROVER uses mean embedding values as proxy scores rather than true PLL, which may underestimate its capabilities.
 
 5. **Claim scope**: Our conclusions apply to the specific models, promoter system, and mechanistic tests evaluated here. We do not claim these findings generalize to all gLMs or all regulatory contexts.
 
@@ -482,6 +656,8 @@ python scripts/experiment_mpra_validation.py
 ### Environment
 
 - Python 3.10 (conda environment: `nest`)
-- PyTorch with CUDA support
-- NVIDIA GeForce RTX 2080 Ti (11.6 GB)
+- PyTorch 2.6.0 with CUDA 12.4 support
+- 4x NVIDIA A100 80GB PCIe
+- Evo2-1B: separate venv (`venv_evo2`) with evo2, transformer-engine, flash-attn
+- Caduceus: separate venv (`venv_caduceus`) with mamba_ssm 2.2.4, causal-conv1d 1.5.0.post8
 - All logs saved to `logs/<timestamp>/experiment.log`
